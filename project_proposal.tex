@@ -36,16 +36,18 @@ This helps prevent the waste of what could be perfectly reusable items and easil
 \section{Background}
 It is common to find unwanted items placed on the side of the road and even more so in college towns. Students are often too lazy to sell their items or believe their items have little to no value and leave furniture on the side of the road that could be used for new incoming students. With Side of The Road, students can post their items easily and quickly. \\
 
-In general, items are hard to find and often go to waste, as only the people who physically go down that street has a chance of seeing the item. Side of The Road aims to create a safe and reliable marketplace for college students. Existing  web/mobile applications like Craigslist and Letgo, allow users to very easily create new accounts to interface with the marketplace. However this causes an issue where new accounts are unable to be verified as said accounts could be bots or scammers. By using college/university email domains, we are able to easily verify if user is from the school and at the very least, is a real person. Craigslist also provides only general areas, e.g. Santa Cruz County, which covers large areas. Users would have to manually parse through listings to find ones close in proximity, while Side of The Road offers a radius option to filter large listings.
+\noindent
+In general, items are hard to find and often go to waste, as only the people who physically go down that street has a chance of seeing the item. Side of The Road aims to create a safe and reliable marketplace for college students. Existing  web/mobile applications like Craigslist and Letgo, allow users to very easily create new accounts to interface with the marketplace. However, this causes an issue where new accounts are unable to be verified as said accounts could be bots or scammers. By using college/university email domains, we are able to easily verify if the user is from the school and at the very least, is a real person. Craigslist also provides only general areas, e.g. Santa Cruz County, which covers large areas. Users would have to manually parse through listings to find ones close in proximity, while Side of The Road offers a radius option to filter large listings.
 
 
 \section{Objective}
 Side of The Road is used for sharing and locating items that have been placed on the side of the road that can be picked up for free or very cheap. Our app has three main objectives: (1) Help students get rid of unwanted items easily (2) Help students find reusable items easily (3) Reduce waste found on the streets. \\
 
+\noindent
 Below are rough sketches of how we believe Side of The Road should look. The first figure on the left shows different item listings. Each item listing gives information of the price, an image, and a title. Note that at the top left corner is a navigation button, commonly found on most apps. The second figure found in the center, is in the scenario where the user clicks the navigation button. A sidebar will appear giving options for the user to maneuver to different screens. The current options would be for the user to view their profile, view the listings in a map/thumbnail format, or to view their direct messages. The third figure found on the right, navigates the user to view more information about an item listing. More pictures of the item and a short description of the item can be found if offered.
 
 \begin{figure}[H]
-	\includegraphics[width=9cm, height=6cm]{app_sketch}
+	\includegraphics[width=8.9cm, height=6cm]{app_sketch}
 	\caption{App Sketches}
 	\label{}
 \end{figure}
@@ -56,13 +58,15 @@ Below are rough sketches of how we believe Side of The Road should look. The fir
 \emph{In the situation where a user wishes to get rid of or finds an item left on the side of the road:} \\ 
 
 \begin{figure}[H]
-	\includegraphics[width=6cm, height=5cm]{user_post}
+	\includegraphics[width=6cm, height=4.8cm]{user_post}
 	\caption{User Posts Item}
 	\label{}
 \end{figure}
 
-The user will first open the app and will be directed to the login screen if not already logged in. After entering their email and password, the user will now be able to view item listings around the area. The user will want to take a picture and may swipe right to get to the camera screen or tap the top left camera icon. After capturing the picture, the app will acquire the GPS location and the user will be asked to optionally fill out a description. Once posted, the user will see the listing on the feed and will close the app.
+\noindent
+The user will first open the app and will be directed to the login screen if not already logged in. After entering their email and password, the user will now be able to view item listings around the area. The user will want to take a picture and may swipe right to get to the camera screen or tap the top left camera icon. After capturing the picture, the app will acquire the GPS location and the user will be asked to optionally fill out a description. Once posted, the user will see the listing on the feed and will close the app. \\
 
+\noindent
 \emph{In the situation where a user is looking for an item:} \\
 
 \begin{figure}[H]
@@ -71,17 +75,20 @@ The user will first open the app and will be directed to the login screen if not
 	\label{}
 \end{figure}
 
-Just as posting an item, the user will first open the app and will be directed to the login screen if not already logged in. After entering their login information, the user will be able to view item listings around the area. The user may set radius to filter item listings and scroll through updated listings until the user finds something of interest. After locating the item, the user will retrieve the item and mark the item as taken.
+\noindent
+Just as posting an item, the user will first open the app and will be directed to the login screen if not already logged in. After entering their login information, the user will be able to view item listings around the area. The user may set radius to filter item listings and scroll through updated listings until the user finds something of interest. After locating the item, the user will retrieve the item and mark the item as taken. \\
 
 
+\noindent
 \emph{In the situation after an item has been posted:}\\
 
 \begin{figure}[H]
-	\includegraphics[width=5.5cm, height=3.6cm]{item_cycle}
+	\includegraphics[width=6cm, height=4cm]{item_cycle}
 	\caption{Item Lifecycle}
 	\label{}
 \end{figure}
 
+\noindent
 Items posted on app will have a timestamp. This will help with items posted that have never been retrieved to increase the quality of item listings. Items will be removed if marked as taken or removed if left for a long period of time.
 
 
@@ -110,17 +117,15 @@ Some other features that may be offered depending on time constraints:
 
 
 \section{Users}
-Side of The Road targets college students, specifically those that live in apartments. This app will be most beneficial to students looking for free/cheap items that other students no longer need. This may include: furniture, old electronics, textbooks, and etc. Although college faculty and departments are not the intended target users, Side of The Road may also be found useful for these users as excess equipment can be easily advertised for students (e.g. The surplus store on the UCSC campus is outdated and has little awareness).
+Side of The Road targets college students, specifically those that live in apartments. This app will be most beneficial to students looking for free/cheap items that other students no longer need. This may include: furniture, old electronics, textbooks, etc. Although college faculty and departments are not the intended target users, Side of The Road may also be found useful for these users as excess equipment can be easily advertised for students (e.g. The surplus store on the UCSC campus is outdated and has little awareness).
 
 
 \section{Timeline}
 In order to develop Side of The Road, it will be split into three steps: basic functionality, posting, and viewing.
 \textbf{(1)} Basic functionality will give the user the ability to maneuver to the login screen, item listings, and camera. This will mostly include front-end work. Additional functionality will be authentication using Auth0 for accounts.
 \textbf{(2)} Posting will include the picture of the item, the GPS location of the item, an optional description text box, and a user set time-deletion of when the post should be removed. 
-\textbf{(3)} Viewing will give users a list-based viewing of all items in the radius of the user. There will also be an option to view these listings as a thumbnail on a map. Items that have been taken will be marked and requires more than one user to authenticate if an item has been taken. Taken items will then be removed from the listing. \\
-
-\noindent
-These three steps will be goals we hope to accomplish. If time will allow us, we intend to add additional features for quality control as stated above in our features.
+\textbf{(3)} Viewing will give users a list-based viewing of all items in the radius of the user. There will also be an option to view these listings as a thumbnail on a map. Items that have been taken will be marked and requires more than one user to authenticate if an item has been taken. Taken items will then be removed from the listing. 
+These three steps will be goals we hope to accomplish. If time will allow us, we intend to add additional features for quality control as stated above in our features section.
 
 
 
