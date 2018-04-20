@@ -35,40 +35,54 @@ This helps prevent the waste of what could be perfectly reusable items and easil
 
 \section{Background}
 It is common to find unwanted items placed on the side of the road and even more so in college towns. Students are often too lazy to sell their items or believe their items have little to no value and leave furniture on the side of the road that could be used for new incoming students. With Side of The Road, students can post their items easily and quickly. \\
+
 In general, items are hard to find and often go to waste, as only the people who physically go down that street has a chance of seeing the item. Side of The Road aims to create a safe and reliable marketplace for college students. Existing  web/mobile applications like Craigslist and Letgo, allow users to very easily create new accounts to interface with the marketplace. However this causes an issue where new accounts are unable to be verified as said accounts could be bots or scammers. By using college/university email domains, we are able to easily verify if user is from the school and at the very least, is a real person. Craigslist also provides only general areas, e.g. Santa Cruz County, which covers large areas. Users would have to manually parse through listings to find ones close in proximity, while Side of The Road offers a radius option to filter large listings.
 
+
 \section{Objective}
-Side of The Road is used for sharing and locating items that have been placed on the side of the road that can be picked up for free or very cheap. Our app has three main objectives: (1) Help students get rid of unwanted items easily (2) Help students find reusable items easily (3) Reduce waste found on the streets. 
+Side of The Road is used for sharing and locating items that have been placed on the side of the road that can be picked up for free or very cheap. Our app has three main objectives: (1) Help students get rid of unwanted items easily (2) Help students find reusable items easily (3) Reduce waste found on the streets. \\
+
+Below are rough sketches of how we believe Side of The Road should look. The first figure on the left shows different item listings. Each item listing gives information of the price, an image, and a title. Note that at the top left corner is a navigation button, commonly found on most apps. The second figure found in the center, is in the scenario where the user clicks the navigation button. A sidebar will appear giving options for the user to maneuver to different screens. The current options would be for the user to view their profile, view the listings in a map/thumbnail format, or to view their direct messages. The third figure found on the right, navigates the user to view more information about an item listing. More pictures of the item and a short description of the item can be found if offered.
+
+\begin{figure}[H]
+	\includegraphics[width=9cm, height=6cm]{app_sketch}
+	\caption{App Sketches}
+	\label{}
+\end{figure}
+
 
 \subsection{General Lifecycle}
 
 \emph{In the situation where a user wishes to get rid of or finds an item left on the side of the road:} \\ 
-The user will first open the app and will be directed to the login screen if not already logged in. After entering their email and password, the user will now be able to view item listings around the area. The user will want to take a picture and may swipe right to get to the camera screen or tap the top left camera icon. After capturing the picture, the app will acquire the GPS location and the user will be asked to optionally fill out a description. Once posted, the user will see the listing on the feed and will close the app.
 
-\begin{figure}[h]
+\begin{figure}[H]
 	\includegraphics[width=6cm, height=5cm]{user_post}
 	\caption{User Posts Item}
 	\label{}
 \end{figure}
 
-\emph{In the situation where a user is looking for an item:} \\
-Just as posting an item, the user will first open the app and will be directed to the login screen if not already logged in. After entering their login information, the user will be able to view item listings around the area. The user may set radius to filter item listings and scroll through updated listings until the user finds something of interest. After locating the item, the user will retrieve the item and mark the item as taken.
+The user will first open the app and will be directed to the login screen if not already logged in. After entering their email and password, the user will now be able to view item listings around the area. The user will want to take a picture and may swipe right to get to the camera screen or tap the top left camera icon. After capturing the picture, the app will acquire the GPS location and the user will be asked to optionally fill out a description. Once posted, the user will see the listing on the feed and will close the app.
 
-\begin{figure}[h]
+\emph{In the situation where a user is looking for an item:} \\
+
+\begin{figure}[H]
 	\includegraphics[width=6cm, height=5cm]{user_find}
 	\caption{User Finds Item}
 	\label{}
 \end{figure}
 
+Just as posting an item, the user will first open the app and will be directed to the login screen if not already logged in. After entering their login information, the user will be able to view item listings around the area. The user may set radius to filter item listings and scroll through updated listings until the user finds something of interest. After locating the item, the user will retrieve the item and mark the item as taken.
+
 
 \emph{In the situation after an item has been posted:}\\
-Items posted on app will have a timestamp. This will help with items posted that have never been retrieved to increase the quality of item listings. Items will be removed if marked as taken or removed if left for a long period of time.
 
-\begin{figure}[h]
-	\includegraphics[width=6cm, height=4cm]{item_cycle}
+\begin{figure}[H]
+	\includegraphics[width=5.5cm, height=3.6cm]{item_cycle}
 	\caption{Item Lifecycle}
 	\label{}
 \end{figure}
+
+Items posted on app will have a timestamp. This will help with items posted that have never been retrieved to increase the quality of item listings. Items will be removed if marked as taken or removed if left for a long period of time.
 
 
 \subsection{Features}
@@ -81,6 +95,7 @@ Side of The Road offers many features:
 	\item Some form of messaging to help alleviate the issue of sharing contact information - Some 	users may not want to share contact information like their email or phone number on the net.
 	\item Posts that are removed after a user-specified time limit
 \end{enumerate}
+
 
 \noindent
 Features, like authentication, will have more weight than others. Our main goal is to avoid bots from spamming the listings. The quality of our listings is key. This will keep our users happy and free from worrying about fake posts. Since interaction between users on Side of The Road are between strangers, we strive to keep contact information private. Direct message in the app will alleviate this and allow posters to help users with more information on an item. \\
@@ -95,7 +110,8 @@ Some other features that may be offered depending on time constraints:
 
 
 \section{Users}
-Side of The Road targets college students, specifically those that live in apartments. This app will be most beneficial to students looking for free/cheap items that other students no longer need. This may include: furniture, old electronics, textbooks, and etc. Although college faculty and departments are not the intended target users, Side of The Road may also be found useful for these users as excess equipment can be easily advertised for students (e.g. The surplus store on the UCSC campus is outdated and has little awareness)
+Side of The Road targets college students, specifically those that live in apartments. This app will be most beneficial to students looking for free/cheap items that other students no longer need. This may include: furniture, old electronics, textbooks, and etc. Although college faculty and departments are not the intended target users, Side of The Road may also be found useful for these users as excess equipment can be easily advertised for students (e.g. The surplus store on the UCSC campus is outdated and has little awareness).
+
 
 \section{Timeline}
 In order to develop Side of The Road, it will be split into three steps: basic functionality, posting, and viewing.
