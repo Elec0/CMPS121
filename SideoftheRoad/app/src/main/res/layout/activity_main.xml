@@ -6,6 +6,8 @@
     android:layout_height="match_parent"
     tools:context=".MainActivity">
 
+    <!-- Layout design taken from https://www.androidhive.info/2016/05/android-working-with-card-view-and-recycler-view/ -->
+    
     <android.support.v7.widget.CardView
         xmlns:card_view="http://schemas.android.com/apk/res-auto"
         android:id="@+id/card_view"
