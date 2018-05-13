@@ -32,13 +32,13 @@
 
             <EditText
                 android:id="@+id/email"
-                android:layout_width="wrap_content"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="30dp"
                 android:layout_marginTop="115dp"
                 android:ems="10"
                 android:inputType="textEmailAddress"
-                android:text="email"
+                android:hint="email"
                 app:layout_constraintBottom_toTopOf="@+id/editText2"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
@@ -48,9 +48,10 @@
         <android.support.design.widget.TextInputLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
+
             <EditText
                 android:id="@+id/password"
-                android:layout_width="wrap_content"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="13dp"
                 android:ems="10"
@@ -62,7 +63,7 @@
 
             <Button
                 android:id="@+id/login_button"
-                android:layout_width="164dp"
+                android:layout_width="match_parent"
                 android:layout_height="50dp"
                 android:layout_marginBottom="206dp"
                 android:text="Login"
