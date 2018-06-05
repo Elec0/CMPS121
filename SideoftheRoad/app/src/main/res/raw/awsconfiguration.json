@@ -1,0 +1,50 @@
+{
+  "UserAgent": "MobileHub/1.0",
+  "Version": "1.0",
+  "CredentialsProvider": {
+    "CognitoIdentity": {
+      "Default": {
+        "PoolId": "us-west-2:ad5483f0-5ae2-46c0-8381-beb294676d2b",
+        "Region": "us-west-2"
+      }
+    }
+  },
+  "IdentityManager": {
+    "Default": {}
+  },
+  "S3TransferUtility": {
+    "Default": {
+      "Bucket": "sideoftheroad-userfiles-mobilehub-1016005302",
+      "Region": "us-west-1"
+    }
+  },
+  "DynamoDBObjectMapper": {
+    "Default": {
+      "Region": "us-west-1"
+    }
+  },
+  "ContentManager": {
+    "Default": {
+      "Bucket": "sideoftheroad-hosting-mobilehub-1016005302",
+      "Region": "us-west-1",
+      "CloudFrontURL": "https://dcaryfn94yrrm.cloudfront.net"
+    }
+  },
+  "PinpointAnalytics": {
+    "Default": {
+      "AppId": "bb624ed5ae4541f58f8f051b1072f509",
+      "Region": "us-east-1"
+    }
+  },
+  "PinpointTargeting": {
+    "Default": {
+      "Region": "us-east-1"
+    }
+  },
+  "UserFileManager": {
+    "Default": {
+      "Bucket": "sideoftheroad-userfiles-mobilehub-1016005302",
+      "Region": "us-west-1"
+    }
+  }
+}
