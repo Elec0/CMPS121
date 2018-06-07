@@ -20,20 +20,17 @@ import cs121.sideoftheroad.R.id.*
 
 class Main2Activity : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListener {
 
+    private var username = ""
     private val TAG = "SOTR"
     private val CAMERA_REQUEST_CODE = 102
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main2)
+        username = intent.getStringExtra("username")
         setSupportActionBar(toolbar)
 
-        fab.setOnClickListener { view ->
-            Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                    .setAction("Action", null).show()
-        }
-
-        val toggle = ActionBarDrawerToggle(
+                val toggle = ActionBarDrawerToggle(
                 this, drawer_layout, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close)
         drawer_layout.addDrawerListener(toggle)
         toggle.syncState()
@@ -95,6 +92,7 @@ class Main2Activity : AppCompatActivity(), NavigationView.OnNavigationItemSelect
         // Get permission to use the camera first
         if(getCameraPermissions()) {
             val intent = Intent(this, AddListingActivity::class.java)
+            intent.putExtra("username", username)
             startActivity(intent)
         }
     }

@@ -19,7 +19,7 @@ public class tblItem {
     private String _description;
     private Map<String, String> _location;
     private Set<String> _pics;
-    private Double _price;
+    private String _price;
     private Set<String> _tags;
     private String _title;
     private String _userId;
@@ -58,11 +58,11 @@ public class tblItem {
         this._pics = _pics;
     }
     @DynamoDBAttribute(attributeName = "price")
-    public Double getPrice() {
+    public String getPrice() {
         return _price;
     }
 
-    public void setPrice(final Double _price) {
+    public void setPrice(final String _price) {
         this._price = _price;
     }
     @DynamoDBAttribute(attributeName = "tags")

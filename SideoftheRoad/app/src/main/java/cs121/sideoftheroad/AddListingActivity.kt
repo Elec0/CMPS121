@@ -9,12 +9,24 @@ import android.provider.MediaStore
 import android.util.Log
 import android.graphics.Bitmap
 import android.R.attr.data
+import android.os.AsyncTask
 import android.support.v4.app.NotificationCompat.getExtras
+import com.amazonaws.mobile.client.AWSMobileClient
+import cs121.sideoftheroad.dbmapper.tables.tblUser
 import kotlinx.android.synthetic.main.activity_add_listing.*
+import kotlinx.android.synthetic.main.activity_login.*
 import kotlinx.android.synthetic.main.nav_header_main2.*
-
+import com.amazonaws.mobileconnectors.s3.transferutility.*
+import com.amazonaws.services.s3.AmazonS3Client;
+import java.io.File
 
 class AddListingActivity : AppCompatActivity() {
+
+    private var mCreateItemTask: createItemTask? = null
+
+    private var titleStr: String = ""
+    private var priceStr: String = ""
+    private var descriptionStr: String = ""
 
     private var TAKE_PHOTO_REQUEST = 103
 
@@ -22,6 +34,15 @@ class AddListingActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_add_listing)
 
+
+        AWSMobileClient.getInstance().initialize(this).execute()
+
+        var username = intent.getStringExtra("username")
+
+        // onclicklistener for submit button
+        button.setOnClickListener {
+            createItemTask(username, editText2.toString(), editText3.toString(), editText.toString())
+        }
         // This is the first time we're running this, which means we are adding a new entry
         // That means we need to open the camera to take a picture before we do anything else
         launchCamera()
@@ -56,6 +77,30 @@ class AddListingActivity : AppCompatActivity() {
 
         } else {
             super.onActivityResult(requestCode, resultCode, data)
+        }
+    }
+
+    private fun uploadToS3(){
+        val transferUtility = TransferUtility.builder()
+                .context(this@AddListingActivity.applicationContext)
+                .awsConfiguration(AWSMobileClient.getInstance().configuration)
+                .s3Client(AmazonS3Client(AWSMobileClient.getInstance().credentialsProvider))
+                .build()
+
+        val uploadObserver = transferUtility.upload("s3folder/s3key.txt", File(imageView2.))
+    }
+    inner class createItemTask internal constructor(private val username: String, private val titleStr: String, private val priceStr: String, private val descriptionStr: String) : AsyncTask<Void, Void, Boolean>() {
+
+        override fun doInBackground(vararg params: Void): Boolean? {
+
+        }
+
+        override fun onPostExecute(success: Boolean?) {
+
+        }
+
+        override fun onCancelled() {
+
         }
     }
 }

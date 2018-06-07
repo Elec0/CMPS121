@@ -30,6 +30,7 @@ class LoginActivity : AppCompatActivity() {
     private var dynamoDBMapper: DynamoDBMapper? = null
     private var loginStr: String = ""
     private var passwordStr: String  = ""
+    private var userFname: String = ""
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -135,6 +136,7 @@ class LoginActivity : AppCompatActivity() {
             System.out.println("PLES PRINT" + user.toString())
             Log.d("THING",user.toString())
             if(user != null){
+                userFname = user.fName
                 return passwordStr == user.password
             }
 
@@ -148,6 +150,8 @@ class LoginActivity : AppCompatActivity() {
 
             if (success!!) {
                 val intent = Intent(this@LoginActivity,Main2Activity::class.java)
+                intent.putExtra("username", loginStr)
+                intent.putExtra("userFname",userFname)
                 startActivity(intent)
                 finish()
             } else {
