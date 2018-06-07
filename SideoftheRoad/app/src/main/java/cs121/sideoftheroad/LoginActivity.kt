@@ -9,53 +9,84 @@ import android.os.Build
 import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
 import android.text.TextUtils
+import android.util.Log
 import android.view.View
 import kotlinx.android.synthetic.main.activity_login.*
+import com.amazonaws.mobile.client.AWSMobileClient
+import com.amazonaws.mobile.client.AWSStartupResult
+import com.amazonaws.mobile.client.AWSStartupHandler
+
+import java.util.regex.Pattern
+
+import com.amazonaws.mobileconnectors.dynamodbv2.dynamodbmapper.DynamoDBMapper
+import com.amazonaws.services.dynamodbv2.AmazonDynamoDBClient
+import cs121.sideoftheroad.dbmapper.repos.UserRepo
+import cs121.sideoftheroad.dbmapper.tables.tblUser
+import kotlin.concurrent.thread
 
 class LoginActivity : AppCompatActivity() {
 
     private var mAuthTask: UserLoginTask? = null
+    private var dynamoDBMapper: DynamoDBMapper? = null
+    private var loginStr: String = ""
+    private var passwordStr: String  = ""
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_login)
 
+        AWSMobileClient.getInstance().initialize(this) { Log.d("YourMainActivity", "AWSMobileClient is instantiated and you are connected to AWS!") }.execute()
+
+        val client = AmazonDynamoDBClient(AWSMobileClient.getInstance().credentialsProvider)
+        dynamoDBMapper = DynamoDBMapper.builder()
+                .dynamoDBClient(client)
+                .awsConfiguration(AWSMobileClient.getInstance().configuration)
+                .build()
+
         login_button.setOnClickListener { attemptLogin() }
+        register_button.setOnClickListener { sendRegisterActivity() }
 
     }
-
+    private fun sendRegisterActivity(){
+        val intent = Intent(this@LoginActivity,RegisterActivity::class.java)
+        startActivity(intent)
+        finish()
+    }
     private fun attemptLogin(){
         if (mAuthTask != null) {
             return
         }
 
         // Reset errors.
-        email.error = null
+        loginId.error = null
         password.error = null
 
         // Store values at the time of the login attempt.
-        val emailStr = email.text.toString()
-        val passwordStr = password.text.toString()
+        loginStr = loginId.text.toString()
+        passwordStr = password.text.toString()
 
         var cancel = false
         var focusView: View? = null
 
+
         // Check for a valid password, if the user entered one.
+        // TODO: fix/find regex for password
         if (!TextUtils.isEmpty(passwordStr) && !isPasswordValid(passwordStr)) {
-            password.error = getString(R.string.error_invalid_password)
+            password.error = "Password is anything right now pls fix"
             focusView = password
             cancel = true
         }
-
-        // Check for a valid email address.
-        if (TextUtils.isEmpty(emailStr)) {
-            email.error = getString(R.string.error_field_required)
-            focusView = email
-            cancel = true
-        } else if (!isEmailValid(emailStr)) {
-            email.error = getString(R.string.error_invalid_email)
-            focusView = email
-            cancel = true
+        if (isEmailCheck(loginStr)) {
+            // Check for a valid email address.
+            if (TextUtils.isEmpty(loginStr)) {
+                loginId.error = getString(R.string.error_loginid_required)
+                focusView = loginId
+                cancel = true
+            } else if (!isEmailValid(loginStr)) {
+                loginId.error = getString(R.string.error_invalid_email)
+                focusView = loginId
+                cancel = true
+            }
         }
 
         if (cancel) {
@@ -65,80 +96,55 @@ class LoginActivity : AppCompatActivity() {
         } else {
             // Show a progress spinner, and kick off a background task to
             // perform the user login attempt.
-            showProgress(true)
-            mAuthTask = UserLoginTask(emailStr, passwordStr)
+            mAuthTask = UserLoginTask(loginStr, passwordStr)
             mAuthTask!!.execute(null as Void?)
         }
     }
 
+    private fun isEmailCheck(inputStr: String): Boolean {
+        return inputStr.contains("@")
+    }
+
     private fun isEmailValid(email: String): Boolean {
-        return email.contains("@ucsc.edu")
+        val pattern = Pattern.compile("[a-zA-Z0-9.!#\$%&'*+/=?^_`{|}~-]+@ucsc.edu", Pattern.CASE_INSENSITIVE)
+        val matcher = pattern.matcher(loginStr)
+
+        return matcher.find()
     }
 
     private fun isPasswordValid(password: String): Boolean{
-        return password.length > 4
-    }
-    @TargetApi(Build.VERSION_CODES.HONEYCOMB_MR2)
-    private fun showProgress(show: Boolean) {
-        // On Honeycomb MR2 we have the ViewPropertyAnimator APIs, which allow
-        // for very easy animations. If available, use these APIs to fade-in
-        // the progress spinner.
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB_MR2) {
-            val shortAnimTime = resources.getInteger(android.R.integer.config_shortAnimTime).toLong()
-
-            login_form.visibility = if (show) View.GONE else View.VISIBLE
-            login_form.animate()
-                    .setDuration(shortAnimTime)
-                    .alpha((if (show) 0 else 1).toFloat())
-                    .setListener(object : AnimatorListenerAdapter() {
-                        override fun onAnimationEnd(animation: Animator) {
-                            login_form.visibility = if (show) View.GONE else View.VISIBLE
-                        }
-                    })
-
-            login_progress.visibility = if (show) View.VISIBLE else View.GONE
-            login_progress.animate()
-                    .setDuration(shortAnimTime)
-                    .alpha((if (show) 1 else 0).toFloat())
-                    .setListener(object : AnimatorListenerAdapter() {
-                        override fun onAnimationEnd(animation: Animator) {
-                            login_progress.visibility = if (show) View.VISIBLE else View.GONE
-                        }
-                    })
-        } else {
-            // The ViewPropertyAnimator APIs are not available, so simply show
-            // and hide the relevant UI components.
-            login_progress.visibility = if (show) View.VISIBLE else View.GONE
-            login_form.visibility = if (show) View.GONE else View.VISIBLE
-        }
+        return true
     }
 
+    // function that allows us to call the dynamodb to get the userobject
+    // TODO: trying to figure out how to allow this to be called by creating an object
+    private fun getUser(userId: String): tblUser? {
+        var user: tblUser? = null
 
-    inner class UserLoginTask internal constructor(private val mEmail: String, private val mPassword: String) : AsyncTask<Void, Void, Boolean>() {
+            user = dynamoDBMapper?.load(tblUser::class.java,
+                    userId)
+
+        return user
+    }
+
+    inner class UserLoginTask internal constructor(private val loginStr: String, private val passwordStr: String) : AsyncTask<Void, Void, Boolean>() {
 
         override fun doInBackground(vararg params: Void): Boolean? {
-            // TODO: attempt authentication against a network service.
+           var user: tblUser? = getUser(loginStr)
 
-            try {
-                // Simulate network access.
-                Thread.sleep(2000)
-            } catch (e: InterruptedException) {
-                return false
+            System.out.println("PLES PRINT" + user.toString())
+            Log.d("THING",user.toString())
+            if(user != null){
+                return passwordStr == user.password
             }
 
-            return DUMMY_CREDENTIALS
-                    .map { it.split(":") }
-                    .firstOrNull { it[0] == mEmail }
-                    ?.let {
-                        // Account exists, return true if the password matches.
-                        it[1] == mPassword
-                    }
-                    ?: true
+            finish()
+
+            return false
         }
 
         override fun onPostExecute(success: Boolean?) {
             mAuthTask = null
-            showProgress(false)
 
             if (success!!) {
                 val intent = Intent(this@LoginActivity,Main2Activity::class.java)
@@ -152,21 +158,7 @@ class LoginActivity : AppCompatActivity() {
 
         override fun onCancelled() {
             mAuthTask = null
-            showProgress(false)
         }
     }
 
-    companion object {
-
-        /**
-         * Id to identity READ_CONTACTS permission request.
-         */
-        private val REQUEST_READ_CONTACTS = 0
-
-        /**
-         * A dummy authentication store containing known user names and passwords.
-         * TODO: remove after connecting to a real authentication system.
-         */
-        private val DUMMY_CREDENTIALS = arrayOf("foo@example.com:hello", "bar@example.com:world")
-    }
 }
