@@ -10,6 +10,8 @@ import android.util.Log
 import android.graphics.Bitmap
 import android.R.attr.data
 import android.support.v4.app.NotificationCompat.getExtras
+import android.widget.ImageView
+import cs121.sideoftheroad.R.id.imageView2
 import kotlinx.android.synthetic.main.activity_add_listing.*
 import kotlinx.android.synthetic.main.nav_header_main2.*
 
@@ -51,7 +53,7 @@ class AddListingActivity : AppCompatActivity() {
             if(data != null) {
                 var extras = data.getExtras()
                 var imageBitmap = extras.get("data") as Bitmap
-                imageView2.setImageBitmap(imageBitmap)
+                findViewById<ImageView>(imageView2).setImageBitmap(imageBitmap)
             }
 
         } else {
