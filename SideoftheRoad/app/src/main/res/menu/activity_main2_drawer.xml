@@ -9,11 +9,11 @@
             android:icon="@drawable/ic_menu_camera"
             android:title="Add a listing" />
         <item
-            android:id="@+id/nav_gallery"
+            android:id="@+id/nav_settings"
             android:icon="@drawable/ic_menu_gallery"
             android:title="Settings" />
         <item
-            android:id="@+id/nav_slideshow"
+            android:id="@+id/nav_map"
             android:icon="@drawable/ic_menu_slideshow"
             android:title="Map" />
     </group>

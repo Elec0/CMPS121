@@ -77,17 +77,13 @@ class Main2Activity : AppCompatActivity(), NavigationView.OnNavigationItemSelect
                 runCameraAdd()
             }
             // Settings
-            R.id.nav_gallery -> {
+            R.id.nav_settings -> {
 
             }
             // Map
-            R.id.nav_slideshow -> {
+            R.id.nav_map -> {
                 val intent = Intent(this, MapsActivity::class.java)
                 startActivity(intent)
-            }
-            // Messaging
-            R.id.nav_manage -> {
-
             }
         }
 
