@@ -79,7 +79,8 @@ class Main2Activity : AppCompatActivity(), NavigationView.OnNavigationItemSelect
             }
             // Map
             R.id.nav_slideshow -> {
-
+                val intent = Intent(this, MapsActivity::class.java)
+                startActivity(intent)
             }
             // Messaging
             R.id.nav_manage -> {

@@ -53,7 +53,7 @@ class AddListingActivity : AppCompatActivity() {
             if(data != null) {
                 var extras = data.getExtras()
                 var imageBitmap = extras.get("data") as Bitmap
-                findViewById<ImageView>(imageView2).setImageBitmap(imageBitmap)
+                imageView2.setImageBitmap(imageBitmap)
             }
 
         } else {
