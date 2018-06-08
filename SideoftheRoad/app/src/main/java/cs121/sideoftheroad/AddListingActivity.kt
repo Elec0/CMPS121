@@ -28,6 +28,10 @@ class AddListingActivity : AppCompatActivity() {
         // That means we need to open the camera to take a picture before we do anything else
         launchCamera()
 
+        btnAdd.setOnClickListener { view ->
+            Log.i(Main2Activity.TAG, "Add the listing.")
+        }
+
     }
 
 
