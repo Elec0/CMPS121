@@ -20,7 +20,10 @@ import cs121.sideoftheroad.R.id.*
 
 class Main2Activity : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListener {
 
-    private val TAG = "SOTR"
+    companion object {
+        val TAG = "SOTR"
+    }
+
     private val CAMERA_REQUEST_CODE = 102
 
     override fun onCreate(savedInstanceState: Bundle?) {

@@ -45,8 +45,10 @@
 
         <activity
             android:name=".MapsActivity"
-            android:label="@string/title_activity_maps"></activity>
-        <activity android:name=".RegisterActivity"></activity>
+            android:parentActivityName=".Main2Activity"
+            android:label="@string/title_activity_maps" />
+        <activity android:name=".RegisterActivity"
+            android:parentActivityName=".LoginActivity" />
     </application>
 
 </manifest>
