@@ -9,6 +9,9 @@ import android.provider.MediaStore
 import android.util.Log
 import android.graphics.Bitmap
 import android.R.attr.data
+import android.location.Location
+import android.location.LocationListener
+import android.location.LocationManager
 import android.os.Environment
 import android.support.v4.app.NotificationCompat.getExtras
 import android.widget.ImageView
@@ -17,17 +20,30 @@ import kotlinx.android.synthetic.main.activity_add_listing.*
 import kotlinx.android.synthetic.main.nav_header_main2.*
 import java.nio.file.Files.exists
 import android.os.Environment.getExternalStorageDirectory
+import com.google.android.gms.maps.model.LatLng
 import java.io.File
 import java.io.FileOutputStream
 
 
 class AddListingActivity : AppCompatActivity() {
 
-    private var TAKE_PHOTO_REQUEST = 103
+    private val TAKE_PHOTO_REQUEST = 103
+
+    private var curLoc: LatLng? = null
+    private var locationManager : LocationManager? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_add_listing)
+
+        // Create persistent LocationManager reference
+        locationManager = getSystemService(LOCATION_SERVICE) as LocationManager?;
+        try {
+            // Request location updates
+            locationManager?.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 0L, 0f, locationListener);
+        } catch(ex: SecurityException) {
+            Log.d(Main2Activity.TAG, "Security Exception, no location available");
+        }
 
         // This is the first time we're running this, which means we are adding a new entry
         // That means we need to open the camera to take a picture before we do anything else
@@ -35,6 +51,9 @@ class AddListingActivity : AppCompatActivity() {
 
         btnAdd.setOnClickListener { view ->
             Log.i(Main2Activity.TAG, "Add the listing.")
+            val title: String = txtTitle.text.toString()
+            val price: String = txtPrice.text.toString()
+            val loc: LatLng? = curLoc
         }
 
     }
@@ -80,5 +99,17 @@ class AddListingActivity : AppCompatActivity() {
         } else {
             super.onActivityResult(requestCode, resultCode, data)
         }
+    }
+
+
+    // Define the location listener
+    // From https://stackoverflow.com/questions/45958226/get-location-android-kotlin
+    private val locationListener: LocationListener = object : LocationListener {
+        override fun onLocationChanged(location: Location) {
+            curLoc = LatLng(location.latitude, location.longitude)
+        }
+        override fun onStatusChanged(provider: String, status: Int, extras: Bundle) {}
+        override fun onProviderEnabled(provider: String) {}
+        override fun onProviderDisabled(provider: String) {}
     }
 }
