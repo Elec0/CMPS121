@@ -17,7 +17,7 @@ import java.util.Set;
 public class tblItem {
     private String _itemId;
     private String _description;
-    private Map<String, String> _location;
+    private String _location;
     private String _price;
     private String _pics;
     private Set<String> _tags;
@@ -42,11 +42,11 @@ public class tblItem {
         this._description = _description;
     }
     @DynamoDBAttribute(attributeName = "location")
-    public Map<String, String> getLocation() {
+    public String getLocation() {
         return _location;
     }
 
-    public void setLocation(final Map<String, String> _location) {
+    public void setLocation(final String _location) {
         this._location = _location;
     }
     @DynamoDBAttribute(attributeName = "pics")
