@@ -50,7 +50,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:ems="10"
-                android:hint="Price"
+                android:hint="Price (leave blank for free)"
                 android:inputType="numberDecimal" />
 
             <EditText
@@ -67,7 +67,7 @@
                 android:id="@+id/btnAdd"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Submit" />
+                android:text="Add Listing" />
         </LinearLayout>
     </ScrollView>
 </RelativeLayout>
