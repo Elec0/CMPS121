@@ -1,0 +1,48 @@
+https://docs.aws.amazon.com/aws-mobile/latest/developerguide/add-aws-mobile-nosql-database.html
+ 
+
+#To Create/Update 
+  fun createItem() {
+       var newItem: tblItem = tblItem()
+       newItem.title = "'
+       newItem.description = ""
+       newItem.itemId = ""
+       newItem.price = ""
+
+       thread(start = true) {
+           dynamoDBMapper.save(newItem)
+       }
+   }
+   
+   fun updateItem() {
+       // You could also load the item then update the itemObj then push it back with this function
+       var newItem: tblItem = tblItem()
+       newItem.title = "1'
+       newItem.description = "2"
+       newItem.itemId = [itemId that you want to update]
+       newItem.price = "4"
+
+       thread(start = true) {
+           dynamoDBMapper.save(newItem)
+       }
+   }
+  
+#To Load/Read
+// currItem holds the itemObj
+   fun readItem(itemId: String, callback: (tblItem?) -> Unit) {
+       thread(start = true) {
+           var currItem = dynamoDBMapper.load(tblItem::class.java,
+                   itemId)
+           runOnUiThread { callback(currItem) }
+       }
+   }
+   
+#To Delete
+   public void deleteItem(itemId: String) {
+   thread(start = true) {
+       val item = tblItem()
+       item.itemId = itemId
+
+       dynamoDBMapper.delete(item)
+   }
+ }
