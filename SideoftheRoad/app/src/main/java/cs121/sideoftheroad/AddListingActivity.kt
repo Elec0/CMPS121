@@ -9,11 +9,16 @@ import android.provider.MediaStore
 import android.util.Log
 import android.graphics.Bitmap
 import android.R.attr.data
+import android.os.Environment
 import android.support.v4.app.NotificationCompat.getExtras
 import android.widget.ImageView
 import cs121.sideoftheroad.R.id.imageView2
 import kotlinx.android.synthetic.main.activity_add_listing.*
 import kotlinx.android.synthetic.main.nav_header_main2.*
+import java.nio.file.Files.exists
+import android.os.Environment.getExternalStorageDirectory
+import java.io.File
+import java.io.FileOutputStream
 
 
 class AddListingActivity : AppCompatActivity() {
@@ -58,6 +63,18 @@ class AddListingActivity : AppCompatActivity() {
                 var extras = data.getExtras()
                 var imageBitmap = extras.get("data") as Bitmap
                 imageView2.setImageBitmap(imageBitmap)
+
+                // Save the bitmap as a file for uploading
+                val file_path = Environment.getExternalStorageDirectory().getAbsolutePath() + "/SideoftheRoad"
+                val dir = File(file_path)
+                if (!dir.exists())
+                    dir.mkdirs()
+                val file = File(dir, "curFile.png")
+                val fOut = FileOutputStream(file)
+
+                imageBitmap.compress(Bitmap.CompressFormat.PNG, 85, fOut)
+                fOut.flush()
+                fOut.close()
             }
 
         } else {
