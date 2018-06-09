@@ -19,7 +19,7 @@
         android:theme="@style/AppTheme">
         <activity
             android:name=".Main2Activity"
-            android:label="@string/title_activity_main2"
+            android:label="@string/nav_header_title"
             android:theme="@style/AppTheme.NoActionBar" />
         <activity android:name=".LoginActivity">
             <intent-filter>
@@ -45,11 +45,10 @@
 
         <activity
             android:name=".MapsActivity"
-            android:label="@string/title_activity_maps"></activity>
-        <activity android:name=".RegisterActivity"></activity>
-
-
-        <service android:name="com.amazonaws.mobileconnectors.s3.transferutility.TransferService" android:enabled="true" />
+            android:parentActivityName=".Main2Activity"
+            android:label="@string/title_activity_maps" />
+        <activity android:name=".RegisterActivity"
+            android:parentActivityName=".LoginActivity" />
     </application>
 
 </manifest>

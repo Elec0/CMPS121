@@ -15,13 +15,29 @@ import android.view.MenuItem
 import kotlinx.android.synthetic.main.activity_main2.*
 import kotlinx.android.synthetic.main.app_bar_main2.*
 import android.Manifest
+import android.app.ActionBar
+import android.graphics.Color
 import android.support.v4.app.ActivityCompat
+import android.support.v7.widget.CardView
 import cs121.sideoftheroad.R.id.*
+import android.util.TypedValue
+import android.widget.TextView
+import android.graphics.Color.parseColor
+import kotlinx.android.synthetic.main.content_main2.*
+import android.view.ViewGroup
+import android.widget.LinearLayout
+import android.util.DisplayMetrics
+import android.view.Gravity
+
 
 class Main2Activity : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListener {
 
     private var username = ""
-    private val TAG = "SOTR"
+
+    companion object {
+        val TAG = "SOTR"
+    }
+
     private val CAMERA_REQUEST_CODE = 102
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -32,10 +48,85 @@ class Main2Activity : AppCompatActivity(), NavigationView.OnNavigationItemSelect
 
                 val toggle = ActionBarDrawerToggle(
                 this, drawer_layout, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close)
+
         drawer_layout.addDrawerListener(toggle)
         toggle.syncState()
 
         nav_view.setNavigationItemSelectedListener(this)
+
+        // When creating these programatically we must put each group of 2 into a linearlayout so they
+        // actually are next to each other
+        // TODO: Fetch all entries in the database and display in CardViews
+        val row1 = LinearLayout(this)
+        row1.layoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT)
+
+        row1.addView(createCardView(0))
+        row1.addView(createCardView(1))
+        layoutMain.addView(row1)
+    }
+
+    /**
+     * A general method to programatically create a new cardview to be placed inside the linearlayout
+     * The loc variable determines if it is supposed to be on the left or right side of the screem
+     * 0 = left
+     * 1 = right
+     */
+    fun createCardView(loc: Int): CardView {
+        // Initialize a new CardView
+        val card = CardView(this)
+
+        val displayMetrics = DisplayMetrics()
+        windowManager.defaultDisplay.getMetrics(displayMetrics)
+        val width = displayMetrics.widthPixels
+
+        // Set the CardView layoutParams
+        // Make the Card a square
+        val cardParams = LinearLayout.LayoutParams(
+                width/2,
+                width/2
+        )
+
+        // Get the value of the margins from the dimen.xml
+        val margins: IntArray = intArrayOf(resources.getDimension(R.dimen.card_margin_start).toInt(), resources.getDimension(R.dimen.card_margin_top).toInt(),
+                resources.getDimension(R.dimen.card_margin_end).toInt(), resources.getDimension(R.dimen.card_margin_bottom).toInt())
+        // Then convert from dp to pixels
+        for(i in margins.indices) {
+            margins[i] = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, margins[i].toFloat(), resources.getDisplayMetrics()).toInt()
+        }
+        cardParams.setMargins(margins[0], margins[1], margins[2], margins[3])
+
+        val innerParams = LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.WRAP_CONTENT,
+                LinearLayout.LayoutParams.WRAP_CONTENT
+        )
+
+        // Set the rest of the card params
+        cardParams.gravity = if(loc == 0) Gravity.START else Gravity.END
+        cardParams.weight = 1f
+
+        card.layoutParams = cardParams
+
+        // Set CardView corner radius
+        card.radius = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 4f, resources.getDisplayMetrics())
+
+        // Set cardView content padding
+        //card.setContentPadding(5, 5, 5, 5)
+
+        // Set the CardView maximum elevation
+        //card.maxCardElevation = 15f
+        // Set CardView elevation
+        //card.cardElevation = 9f
+
+        // Initialize a new TextView to put in CardView
+        val tv = TextView(this)
+        tv.layoutParams = innerParams
+        tv.text = "CardView\nProgrammatically"
+        tv.setTextSize(TypedValue.COMPLEX_UNIT_DIP, 12f)
+
+        // Put the TextView in CardView
+        card.addView(tv)
+
+        return card
     }
 
     override fun onBackPressed() {
@@ -71,16 +162,13 @@ class Main2Activity : AppCompatActivity(), NavigationView.OnNavigationItemSelect
                 runCameraAdd()
             }
             // Settings
-            R.id.nav_gallery -> {
+            R.id.nav_settings -> {
 
             }
             // Map
-            R.id.nav_slideshow -> {
-
-            }
-            // Messaging
-            R.id.nav_manage -> {
-
+            R.id.nav_map -> {
+                val intent = Intent(this, MapsActivity::class.java)
+                startActivity(intent)
             }
         }
 
@@ -101,8 +189,11 @@ class Main2Activity : AppCompatActivity(), NavigationView.OnNavigationItemSelect
         val camPermission = ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA)
         val writePermission = ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE)
         val readPermission = ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE)
+        val locCoarsePermission = ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION)
+        val locFinePermission = ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
 
-        if (camPermission != PackageManager.PERMISSION_GRANTED || writePermission != PackageManager.PERMISSION_GRANTED || readPermission != PackageManager.PERMISSION_GRANTED) {
+        if (camPermission != PackageManager.PERMISSION_GRANTED || writePermission != PackageManager.PERMISSION_GRANTED || readPermission != PackageManager.PERMISSION_GRANTED ||
+                locCoarsePermission != PackageManager.PERMISSION_GRANTED || locFinePermission != PackageManager.PERMISSION_GRANTED) {
             Log.i(TAG, "Required permissions denied")
             makeCameraRequest()
             return false
@@ -112,7 +203,8 @@ class Main2Activity : AppCompatActivity(), NavigationView.OnNavigationItemSelect
     }
 
     private fun makeCameraRequest() {
-        ActivityCompat.requestPermissions(this, arrayOf(Manifest.permission.CAMERA, Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE), CAMERA_REQUEST_CODE)
+        ActivityCompat.requestPermissions(this, arrayOf(Manifest.permission.CAMERA, Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE,
+                Manifest.permission.ACCESS_COARSE_LOCATION, Manifest.permission.ACCESS_FINE_LOCATION), CAMERA_REQUEST_CODE)
     }
 
     // Permissions code from https://www.techotopia.com/index.php/Kotlin_-_Making_Runtime_Permission_Requests_in_Android

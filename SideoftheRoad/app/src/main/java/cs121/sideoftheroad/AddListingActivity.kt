@@ -8,27 +8,25 @@ import android.os.Bundle
 import android.provider.MediaStore
 import android.util.Log
 import android.graphics.Bitmap
-import android.R.attr.data
-import android.net.Uri
 import android.os.AsyncTask
 import android.os.Environment
-import android.support.v4.app.NotificationCompat.getExtras
 import android.widget.Toast
 import com.amazonaws.mobile.client.AWSMobileClient
 import com.amazonaws.mobileconnectors.dynamodbv2.dynamodbmapper.DynamoDBMapper
-import com.amazonaws.mobileconnectors.s3.transfermanager.Transfer
-import cs121.sideoftheroad.dbmapper.tables.tblUser
+import android.location.Location
+import android.location.LocationListener
+import android.location.LocationManager
 import kotlinx.android.synthetic.main.activity_add_listing.*
-import kotlinx.android.synthetic.main.activity_login.*
-import kotlinx.android.synthetic.main.nav_header_main2.*
 import com.amazonaws.mobileconnectors.s3.transferutility.*
 import com.amazonaws.services.dynamodbv2.AmazonDynamoDBClient
 import com.amazonaws.services.s3.AmazonS3Client
 import cs121.sideoftheroad.dbmapper.tables.tblItem
 import cs121.sideoftheroad.s3bucket.Constants
 import java.io.File
+import com.google.android.gms.maps.model.LatLng
+import java.io.FileOutputStream
 
-class AddListingActivity : AppCompatActivity() {
+    class AddListingActivity : AppCompatActivity() {
 
     private var mCreateItemTask: createItemTask? = null
 
@@ -43,10 +41,12 @@ class AddListingActivity : AppCompatActivity() {
 
     private var TAKE_PHOTO_REQUEST = 103
 
+    private var curLoc: LatLng? = null
+    private var locationManager : LocationManager? = null
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_add_listing)
-
 
         AWSMobileClient.getInstance().initialize(this).execute()
         val client = AmazonDynamoDBClient(AWSMobileClient.getInstance().credentialsProvider)
@@ -57,17 +57,39 @@ class AddListingActivity : AppCompatActivity() {
 
         var username = intent.getStringExtra("username")
 
+        /*
         // onclicklistener for submit button
-        button.setOnClickListener {
+        btnAdd.setOnClickListener {
             System.out.println("hasnt blown up yet 60")
             val completed = uploadToS3()
             System.out.println("62 not blown up yet")
-            createItemTask(username, editText2.toString(), editText3.toString(), editText.toString(),completed)
+            createItemTask(username, txtTitle.toString(), txtPrice.toString(), txtDesc.toString(),completed)
         }
+        */
+
+        // Create persistent LocationManager reference
+        locationManager = getSystemService(LOCATION_SERVICE) as LocationManager?;
+        try {
+            // Request location updates
+            locationManager?.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 0L, 0f, locationListener);
+        } catch(ex: SecurityException) {
+            Log.d(Main2Activity.TAG, "Security Exception, no location available");
+        }
+
         // This is the first time we're running this, which means we are adding a new entry
         // That means we need to open the camera to take a picture before we do anything else
         launchCamera()
 
+        btnAdd.setOnClickListener { view ->
+            Log.i(Main2Activity.TAG, "Add the listing.")
+            val title: String = txtTitle.text.toString()
+            val price: String = txtPrice.text.toString()
+            val loc: LatLng? = curLoc
+
+            // TODO: Upload to the database
+
+            finish()
+        }
     }
 
 
@@ -95,6 +117,18 @@ class AddListingActivity : AppCompatActivity() {
                 var extras = data.getExtras()
                 var imageBitmap = extras.get("data") as Bitmap
                 imageView2.setImageBitmap(imageBitmap)
+
+                // Save the bitmap as a file for uploading
+                val file_path = Environment.getExternalStorageDirectory().getAbsolutePath() + "/SideoftheRoad"
+                val dir = File(file_path)
+                if (!dir.exists())
+                    dir.mkdirs()
+                val file = File(dir, "curFile.png")
+                val fOut = FileOutputStream(file)
+
+                imageBitmap.compress(Bitmap.CompressFormat.PNG, 85, fOut)
+                fOut.flush()
+                fOut.close()
             }
 
         } else {
@@ -142,13 +176,13 @@ class AddListingActivity : AppCompatActivity() {
 
         override fun doInBackground(vararg params: Void): Boolean? {
             if (completed) {
-                val pics: MutableSet<String> = mutableSetOf(filePathStr)
+                //val pics: MutableSet<String> = mutableSetOf(filePathStr)
                 var newItem: tblItem = tblItem()
                 newItem.title = titleStr
                 newItem.description = descriptionStr
                 newItem.itemId = username + "." + titleStr
                 newItem.price = priceStr
-                newItem.pics = pics
+                //newItem.pics = pics
                 createItem(newItem)
 
                 return true
@@ -160,16 +194,27 @@ class AddListingActivity : AppCompatActivity() {
 
         override fun onPostExecute(success: Boolean?) {
             if (success!!) {
-                Log.d("STUFF","successful")
-                val intent = Intent(this@AddListingActivity,Main2Activity::class.java)
+                Log.d("STUFF", "successful")
+                val intent = Intent(this@AddListingActivity, Main2Activity::class.java)
                 startActivity(intent)
                 finish()
             }
-            Log.d("STUFF","notsucesescesful")
+            Log.d("STUFF", "notsucesescesful")
         }
 
         override fun onCancelled() {
 
         }
+    }
+
+    // Define the location listener
+    // From https://stackoverflow.com/questions/45958226/get-location-android-kotlin
+    private val locationListener: LocationListener = object : LocationListener {
+        override fun onLocationChanged(location: Location) {
+            curLoc = LatLng(location.latitude, location.longitude)
+        }
+        override fun onStatusChanged(provider: String, status: Int, extras: Bundle) {}
+        override fun onProviderEnabled(provider: String) {}
+        override fun onProviderDisabled(provider: String) {}
     }
 }
