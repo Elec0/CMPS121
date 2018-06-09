@@ -15,8 +15,18 @@ import android.view.MenuItem
 import kotlinx.android.synthetic.main.activity_main2.*
 import kotlinx.android.synthetic.main.app_bar_main2.*
 import android.Manifest
+import android.app.ActionBar
+import android.graphics.Color
 import android.support.v4.app.ActivityCompat
+import android.support.v7.widget.CardView
 import cs121.sideoftheroad.R.id.*
+import android.util.TypedValue
+import android.widget.TextView
+import android.graphics.Color.parseColor
+import kotlinx.android.synthetic.main.content_main2.*
+import android.view.ViewGroup
+import android.widget.LinearLayout
+
 
 class Main2Activity : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListener {
 
@@ -31,17 +41,59 @@ class Main2Activity : AppCompatActivity(), NavigationView.OnNavigationItemSelect
         setContentView(R.layout.activity_main2)
         setSupportActionBar(toolbar)
 
-        /*fab.setOnClickListener { view ->
-            Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                    .setAction("Action", null).show()
-        }*/
-
-        val toggle = ActionBarDrawerToggle(
-                this, drawer_layout, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close)
+        val toggle = ActionBarDrawerToggle(this, drawer_layout, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close)
         drawer_layout.addDrawerListener(toggle)
         toggle.syncState()
 
         nav_view.setNavigationItemSelectedListener(this)
+
+        val card = CreateCardView(0)
+        layoutMain.addView(card)
+    }
+
+    /**
+     * A general method to programatically create a new cardview to be placed inside the linearlayout
+     * The loc variable determines if it is supposed to be on the left or right side of the screem
+     * 0 = left
+     * 1 = right
+     */
+    fun CreateCardView(loc: Int): CardView {
+        // Initialize a new CardView
+        val card = CardView(this)
+
+        // Set the CardView layoutParams
+        val params = LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.WRAP_CONTENT,
+                LinearLayout.LayoutParams.WRAP_CONTENT
+        )
+        card.layoutParams = params
+
+        // Set CardView corner radius
+        card.radius = 9f
+
+        // Set cardView content padding
+        card.setContentPadding(15, 15, 15, 15)
+
+        // Set a background color for CardView
+        card.setCardBackgroundColor(Color.parseColor("#FFC6D6C3"))
+
+        // Set the CardView maximum elevation
+        card.maxCardElevation = 15f
+
+        // Set CardView elevation
+        card.cardElevation = 9f
+
+        // Initialize a new TextView to put in CardView
+        val tv = TextView(this)
+        tv.layoutParams = params
+        tv.text = "CardView\nProgrammatically"
+        tv.setTextSize(TypedValue.COMPLEX_UNIT_DIP, 30f)
+        tv.setTextColor(Color.RED)
+
+        // Put the TextView in CardView
+        card.addView(tv)
+
+        return card
     }
 
     override fun onBackPressed() {
