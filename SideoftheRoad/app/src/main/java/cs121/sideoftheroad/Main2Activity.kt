@@ -51,6 +51,7 @@ class Main2Activity : AppCompatActivity(), NavigationView.OnNavigationItemSelect
 
         // When creating these programatically we must put each group of 2 into a linearlayout so they
         // actually are next to each other
+        // TODO: Fetch all entries in the database and display in CardViews
         val row1 = LinearLayout(this)
         row1.layoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT)
 

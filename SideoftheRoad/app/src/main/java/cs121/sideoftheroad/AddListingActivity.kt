@@ -54,8 +54,11 @@ class AddListingActivity : AppCompatActivity() {
             val title: String = txtTitle.text.toString()
             val price: String = txtPrice.text.toString()
             val loc: LatLng? = curLoc
-        }
 
+            // TODO: Upload to the database
+
+            finish()
+        }
     }
 
 
