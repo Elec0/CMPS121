@@ -26,6 +26,8 @@ import android.graphics.Color.parseColor
 import kotlinx.android.synthetic.main.content_main2.*
 import android.view.ViewGroup
 import android.widget.LinearLayout
+import android.util.DisplayMetrics
+import android.view.Gravity
 
 
 class Main2Activity : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListener {
@@ -47,8 +49,14 @@ class Main2Activity : AppCompatActivity(), NavigationView.OnNavigationItemSelect
 
         nav_view.setNavigationItemSelectedListener(this)
 
-        val card = CreateCardView(0)
-        layoutMain.addView(card)
+        // When creating these programatically we must put each group of 2 into a linearlayout so they
+        // actually are next to each other
+        val row1 = LinearLayout(this)
+        row1.layoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT)
+
+        row1.addView(createCardView(0))
+        row1.addView(createCardView(1))
+        layoutMain.addView(row1)
     }
 
     /**
@@ -57,38 +65,57 @@ class Main2Activity : AppCompatActivity(), NavigationView.OnNavigationItemSelect
      * 0 = left
      * 1 = right
      */
-    fun CreateCardView(loc: Int): CardView {
+    fun createCardView(loc: Int): CardView {
         // Initialize a new CardView
         val card = CardView(this)
 
+        val displayMetrics = DisplayMetrics()
+        windowManager.defaultDisplay.getMetrics(displayMetrics)
+        val width = displayMetrics.widthPixels
+
         // Set the CardView layoutParams
-        val params = LinearLayout.LayoutParams(
+        // Make the Card a square
+        val cardParams = LinearLayout.LayoutParams(
+                width/2,
+                width/2
+        )
+
+        // Get the value of the margins from the dimen.xml
+        val margins: IntArray = intArrayOf(resources.getDimension(R.dimen.card_margin_start).toInt(), resources.getDimension(R.dimen.card_margin_top).toInt(),
+                resources.getDimension(R.dimen.card_margin_end).toInt(), resources.getDimension(R.dimen.card_margin_bottom).toInt())
+        // Then convert from dp to pixels
+        for(i in margins.indices) {
+            margins[i] = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, margins[i].toFloat(), resources.getDisplayMetrics()).toInt()
+        }
+        cardParams.setMargins(margins[0], margins[1], margins[2], margins[3])
+
+        val innerParams = LinearLayout.LayoutParams(
                 LinearLayout.LayoutParams.WRAP_CONTENT,
                 LinearLayout.LayoutParams.WRAP_CONTENT
         )
-        card.layoutParams = params
+
+        // Set the rest of the card params
+        cardParams.gravity = if(loc == 0) Gravity.START else Gravity.END
+        cardParams.weight = 1f
+
+        card.layoutParams = cardParams
 
         // Set CardView corner radius
-        card.radius = 9f
+        card.radius = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 4f, resources.getDisplayMetrics())
 
         // Set cardView content padding
-        card.setContentPadding(15, 15, 15, 15)
-
-        // Set a background color for CardView
-        card.setCardBackgroundColor(Color.parseColor("#FFC6D6C3"))
+        //card.setContentPadding(5, 5, 5, 5)
 
         // Set the CardView maximum elevation
-        card.maxCardElevation = 15f
-
+        //card.maxCardElevation = 15f
         // Set CardView elevation
-        card.cardElevation = 9f
+        //card.cardElevation = 9f
 
         // Initialize a new TextView to put in CardView
         val tv = TextView(this)
-        tv.layoutParams = params
+        tv.layoutParams = innerParams
         tv.text = "CardView\nProgrammatically"
-        tv.setTextSize(TypedValue.COMPLEX_UNIT_DIP, 30f)
-        tv.setTextColor(Color.RED)
+        tv.setTextSize(TypedValue.COMPLEX_UNIT_DIP, 12f)
 
         // Put the TextView in CardView
         card.addView(tv)
