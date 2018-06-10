@@ -14,6 +14,8 @@ import kotlinx.android.synthetic.main.activity_main2.*
 import kotlinx.android.synthetic.main.app_bar_main2.*
 import android.Manifest
 import android.app.ActionBar
+import android.app.Fragment
+import android.app.FragmentManager
 import android.content.ClipData
 import android.content.SharedPreferences
 import android.graphics.Bitmap
@@ -27,9 +29,11 @@ import android.widget.TextView
 import android.graphics.Color.parseColor
 import android.media.Image
 import android.os.AsyncTask
+import android.support.v4.content.ContextCompat.startActivity
 import kotlinx.android.synthetic.main.content_main2.*
 import android.widget.LinearLayout
 import android.util.DisplayMetrics
+import android.util.LruCache
 import android.view.*
 import android.widget.ImageView
 import com.amazonaws.mobile.client.AWSMobileClient
@@ -56,6 +60,7 @@ class Main2Activity : AppCompatActivity(), NavigationView.OnNavigationItemSelect
     private var dynamoDBMapper: DynamoDBMapper? = null
     private var client: AmazonDynamoDBClient? = null
     private var prefs: SharedPreferences? = null
+    private var imgCache: LruCache<String, Bitmap>? = null
 
     companion object {
         val TAG = "SOTR"
@@ -74,12 +79,26 @@ class Main2Activity : AppCompatActivity(), NavigationView.OnNavigationItemSelect
 
         setSupportActionBar(toolbar)
 
-            val toggle = ActionBarDrawerToggle(this, drawer_layout, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close)
-
+        val toggle = ActionBarDrawerToggle(this, drawer_layout, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close)
         drawer_layout.addDrawerListener(toggle)
         toggle.syncState()
-
         nav_view.setNavigationItemSelectedListener(this)
+
+        // Set up the image cache (https://developer.android.com/topic/performance/graphics/cache-bitmap)
+        val maxMemory = Runtime.getRuntime().maxMemory() / 1024
+        // Use 1/8th of the memory for the cache
+        val cacheSize = maxMemory / 8
+
+        val retainFragment : RetainFragment = RetainFragment.findOrCreateRetainFragment(fragmentManager)
+        imgCache = retainFragment.mRetainedCache
+        if(imgCache == null) {
+            imgCache = object : LruCache<String, Bitmap>(cacheSize.toInt()) {
+                override fun sizeOf(url: String, bitmap: Bitmap): Int {
+                    return bitmap.byteCount / 1024
+                }
+            }
+        }
+
 
         // Connect to the database
         dbConnect()
@@ -174,6 +193,7 @@ class Main2Activity : AppCompatActivity(), NavigationView.OnNavigationItemSelect
         // Initialize a new ImageView and stick it in the CardView
         val iv = ImageView(this)
         iv.layoutParams = imageParams
+
         // Set the default image for an item
         iv.setImageResource(R.drawable.ic_launcher_round)
         if(item.pics != null && !item.pics.equals("null"))
@@ -308,6 +328,20 @@ class Main2Activity : AppCompatActivity(), NavigationView.OnNavigationItemSelect
     }
 
 
+    // ******* Cache functions *******
+    fun addBitmapToMemoryCache(key: String, bitmap: Bitmap) {
+        if (getBitmapFromMemCache(key) == null) {
+            imgCache!!.put(key, bitmap)
+        }
+    }
+
+    fun getBitmapFromMemCache(key: String) : Bitmap? {
+        return imgCache!!.get(key)
+    }
+
+
+    // ******** Async Tasks ********
+
     inner class DatabaseFetchTask internal constructor(val callback: (List<tblItem>) -> Unit) : AsyncTask<Void, Void, Boolean>() {
         var resultList = mutableListOf<tblItem>()
 
@@ -345,16 +379,25 @@ class Main2Activity : AppCompatActivity(), NavigationView.OnNavigationItemSelect
 
         override fun doInBackground(vararg param: String?): Bitmap? {
             var urldisplay = param[0];
-            var mIcon11: Bitmap? = null;
+            var bitmap = getBitmapFromMemCache(urldisplay!!)
+
+            Log.i(TAG, bitmap.toString())
+
+            // If the cache had the image, just return it immediately
+            if(bitmap != null) {
+                return bitmap
+            }
 
             if(!urldisplay!!.startsWith("http://"))
                 urldisplay = "http://" + urldisplay
-            Log.i(TAG, "Download " + urldisplay)
 
             try {
                 var inS: InputStream = URL(urldisplay).openStream()
-                mIcon11 = BitmapFactory.decodeStream(inS)
-                return mIcon11
+                bitmap = BitmapFactory.decodeStream(inS)
+                Log.i(TAG, "Add bitmap to cache")
+                Log.i(TAG, bitmap.toString())
+                addBitmapToMemoryCache(urldisplay, bitmap)
+                return bitmap
 
             } catch (e: Exception) {
                 e.printStackTrace()
@@ -364,11 +407,33 @@ class Main2Activity : AppCompatActivity(), NavigationView.OnNavigationItemSelect
 
         override fun onPostExecute(success: Bitmap?) {
             if(success != null) {
-                Log.i(TAG, "Finished downloading, set bitmap to image.")
                 locImg.setImageBitmap(success)
             }
             else {
-                Log.i(TAG, "Image was not downlaoded successfully")
+                Log.i(TAG, "Image was not downloaded successfully")
+            }
+        }
+    }
+
+
+    class RetainFragment : Fragment() {
+        var mRetainedCache: LruCache<String, Bitmap>? = null
+
+        override fun onCreate(savedInstanceState: Bundle?) {
+            super.onCreate(savedInstanceState)
+            setRetainInstance(true)
+        }
+
+        companion object {
+            private val TAG = "RetainFragment"
+
+            fun findOrCreateRetainFragment(fm: FragmentManager): RetainFragment {
+                var fragment: RetainFragment? = fm.findFragmentByTag(TAG) as? RetainFragment
+                if (fragment == null) {
+                    fragment = RetainFragment()
+                    fm.beginTransaction().add(fragment, TAG).commit()
+                }
+                return fragment
             }
         }
     }
