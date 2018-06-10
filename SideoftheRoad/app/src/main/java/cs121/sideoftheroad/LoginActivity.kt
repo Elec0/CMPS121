@@ -4,6 +4,7 @@ import android.animation.Animator
 import android.animation.AnimatorListenerAdapter
 import android.annotation.TargetApi
 import android.content.Intent
+import android.content.SharedPreferences
 import android.os.AsyncTask
 import android.os.Build
 import android.support.v7.app.AppCompatActivity
@@ -32,6 +33,8 @@ class LoginActivity : AppCompatActivity() {
     private var passwordStr: String  = ""
     private var userFname: String = ""
 
+    private var prefs: SharedPreferences? = null
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_login)
@@ -47,7 +50,18 @@ class LoginActivity : AppCompatActivity() {
         login_button.setOnClickListener { attemptLogin() }
         register_button.setOnClickListener { sendRegisterActivity() }
 
+        prefs = this.getSharedPreferences(Main2Activity.PREFS_FILE, 0)
+
+        // Clear the username preference if it exists, since we're logging in
+        if(prefs!!.contains(Main2Activity.PREF_USERNAME)) {
+            val editor = prefs!!.edit()
+            editor.remove(Main2Activity.PREF_USERNAME)
+            editor.apply()
+        }
+
     }
+
+
     private fun sendRegisterActivity(){
         val intent = Intent(this@LoginActivity,RegisterActivity::class.java)
         startActivity(intent)
@@ -149,8 +163,11 @@ class LoginActivity : AppCompatActivity() {
 
             if (success!!) {
                 val intent = Intent(this@LoginActivity,Main2Activity::class.java)
-                intent.putExtra("username", loginStr)
-                intent.putExtra("userFname",userFname)
+//                intent.putExtra("userFname",userFname)
+                val edit = prefs!!.edit()
+                edit.putString(Main2Activity.PREF_USERNAME, loginStr)
+                edit.apply()
+
                 startActivity(intent)
                 finish()
             } else {

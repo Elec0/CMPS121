@@ -3,6 +3,7 @@ package cs121.sideoftheroad
 import android.app.Activity
 import android.content.ContentValues
 import android.content.Intent
+import android.content.SharedPreferences
 import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
 import android.provider.MediaStore
@@ -46,6 +47,7 @@ class AddListingActivity : AppCompatActivity() {
 
     private var curLoc: LatLng? = null
     private var locationManager : LocationManager? = null
+    private var prefs: SharedPreferences? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -58,7 +60,8 @@ class AddListingActivity : AppCompatActivity() {
                 .awsConfiguration(AWSMobileClient.getInstance().configuration)
                 .build()
 
-        username = intent.getStringExtra("username")
+        prefs = this.getSharedPreferences(Main2Activity.PREFS_FILE, 0)
+        username = prefs!!.getString(Main2Activity.PREF_USERNAME, "")
 
         /*
         // onclicklistener for submit button

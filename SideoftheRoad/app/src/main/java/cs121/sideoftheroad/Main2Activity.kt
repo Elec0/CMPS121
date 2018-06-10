@@ -15,6 +15,7 @@ import kotlinx.android.synthetic.main.app_bar_main2.*
 import android.Manifest
 import android.app.ActionBar
 import android.content.ClipData
+import android.content.SharedPreferences
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.graphics.Color
@@ -54,9 +55,12 @@ class Main2Activity : AppCompatActivity(), NavigationView.OnNavigationItemSelect
 
     private var dynamoDBMapper: DynamoDBMapper? = null
     private var client: AmazonDynamoDBClient? = null
+    private var prefs: SharedPreferences? = null
 
     companion object {
         val TAG = "SOTR"
+        val PREFS_FILE = "cs121.sideoftheroad.prefs"
+        val PREF_USERNAME = "Username"
     }
 
     private val CAMERA_REQUEST_CODE = 102
@@ -64,11 +68,13 @@ class Main2Activity : AppCompatActivity(), NavigationView.OnNavigationItemSelect
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main2)
-        username = intent.getStringExtra("username")
+
+        prefs = this.getSharedPreferences(PREFS_FILE, 0)
+        username = prefs!!.getString(PREF_USERNAME, "") // Should never be null
+
         setSupportActionBar(toolbar)
 
-                val toggle = ActionBarDrawerToggle(
-                this, drawer_layout, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close)
+            val toggle = ActionBarDrawerToggle(this, drawer_layout, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close)
 
         drawer_layout.addDrawerListener(toggle)
         toggle.syncState()
@@ -156,7 +162,8 @@ class Main2Activity : AppCompatActivity(), NavigationView.OnNavigationItemSelect
         // Initialize a new ImageView and stick it in the CardView
         val iv = ImageView(this)
         iv.layoutParams = innerParams
-        iv.setImageResource(R.drawable.waste_basket)
+        // Set the default image for an item
+        iv.setImageResource(R.drawable.ic_launcher_round)
 
         if(item.pics != null && !item.pics.equals("null"))
             DownloadImageTask(iv).execute(item.pics)
@@ -174,6 +181,9 @@ class Main2Activity : AppCompatActivity(), NavigationView.OnNavigationItemSelect
         // Do whatever we're going to do when the user clicks on an item
         card.setOnClickListener(View.OnClickListener {
             Log.i(TAG, "The card was clicked on! " + item.itemId)
+            val intent = Intent(this, DetailActivity::class.java)
+            intent.putExtra("itemId", item.itemId)
+            startActivity(intent)
         })
 
         return card
