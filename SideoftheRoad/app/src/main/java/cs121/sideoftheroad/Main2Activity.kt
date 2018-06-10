@@ -220,7 +220,10 @@ class Main2Activity : AppCompatActivity(), NavigationView.OnNavigationItemSelect
         // Initialize a new TextView to put in CardView
         val tv = TextView(this)
         tv.layoutParams = innerParams
-        tv.text = item.title + "\n" + item.description
+        var priceStr = "\$" + item.price
+        if(priceStr == "\$Free")
+            priceStr = "Free"
+        tv.text = item.title + "\n" + priceStr + "\n" + item.description
         tv.setTextSize(TypedValue.COMPLEX_UNIT_DIP, 12f)
 
         content.addView(tv)
