@@ -24,20 +24,23 @@ import cs121.sideoftheroad.dbmapper.tables.tblItem
 import cs121.sideoftheroad.s3bucket.Constants
 import java.io.File
 import com.google.android.gms.maps.model.LatLng
+import it.sauronsoftware.ftp4j.FTPClient
 import java.io.FileOutputStream
+import java.util.*
+import kotlin.concurrent.thread
 
-    class AddListingActivity : AppCompatActivity() {
+class AddListingActivity : AppCompatActivity() {
 
     private var mCreateItemTask: createItemTask? = null
 
-    private var titleStr: String = ""
-    private var priceStr: String = ""
-    private var descriptionStr: String = ""
+    private var itemId = java.util.UUID.randomUUID().toString()
+    private var username: String = ""
 
 
     private var dynamoDBMapper: DynamoDBMapper? = null
 
     private var filePathStr: String = Environment.getExternalStorageState().toString()
+    private var oImagePathStr = "elec0.com/sideoftheroad/"
 
     private var TAKE_PHOTO_REQUEST = 103
 
@@ -55,7 +58,7 @@ import java.io.FileOutputStream
                 .awsConfiguration(AWSMobileClient.getInstance().configuration)
                 .build()
 
-        var username = intent.getStringExtra("username")
+        username = intent.getStringExtra("username")
 
         /*
         // onclicklistener for submit button
@@ -82,13 +85,19 @@ import java.io.FileOutputStream
 
         btnAdd.setOnClickListener { view ->
             Log.i(Main2Activity.TAG, "Add the listing.")
-            val title: String = txtTitle.text.toString()
-            val price: String = txtPrice.text.toString()
-            val loc: LatLng? = curLoc
 
-            // TODO: Upload to the database
+            val item = tblItem()
+            item.title = txtTitle.text.toString()
+            item.price = txtPrice.text.toString()
+            item.description = txtDesc.text.toString()
+            item.location = curLoc.toString()
+            item.userId = username
+            item.itemId = itemId
+            item.pics = oImagePathStr + itemId + ".png"
 
-            finish()
+            mCreateItemTask = createItemTask(item)
+
+            mCreateItemTask!!.execute(null as Void?)
         }
     }
 
@@ -123,10 +132,11 @@ import java.io.FileOutputStream
                 val dir = File(file_path)
                 if (!dir.exists())
                     dir.mkdirs()
-                val file = File(dir, "curFile.png")
+                val file = File(dir, itemId + ".png")
+                filePathStr = file.path
                 val fOut = FileOutputStream(file)
 
-                imageBitmap.compress(Bitmap.CompressFormat.PNG, 85, fOut)
+                imageBitmap.compress(Bitmap.CompressFormat.JPEG, 85, fOut)
                 fOut.flush()
                 fOut.close()
             }
@@ -136,55 +146,71 @@ import java.io.FileOutputStream
         }
     }
 
+    /*
     private fun uploadToS3(): Boolean {
-        var completed: Boolean = false
-        val transferUtility = TransferUtility.builder()
-                .context(this@AddListingActivity.applicationContext)
-                .awsConfiguration(AWSMobileClient.getInstance().configuration)
-                .s3Client(AmazonS3Client(AWSMobileClient.getInstance().credentialsProvider))
-                        .build()
-        System.out.println(filePathStr)
-        val uploadObserver = transferUtility.upload(Constants.BUCKET_NAME, File(filePathStr))
-        uploadObserver.setTransferListener(object : TransferListener {
+        var percentDone = 0
+        var completed = true
+            val transferUtility = TransferUtility.builder()
+                    .context(this@AddListingActivity.applicationContext)
+                    .awsConfiguration(AWSMobileClient.getInstance().configuration)
+                    .s3Client(AmazonS3Client(AWSMobileClient.getInstance().credentialsProvider))
+                    .build()
+            System.out.println(filePathStr)
+            val uploadObserver = transferUtility.upload(Constants.BUCKET_NAME, File(filePathStr))
+            uploadObserver.setTransferListener(object : TransferListener {
 
-            override fun onStateChanged(id: Int, state: TransferState) {
-                if (TransferState.COMPLETED == state) {
-                    Toast.makeText(applicationContext, "Upload Completed!", Toast.LENGTH_SHORT).show()
-                    completed = true
-                } else if (TransferState.FAILED == state) {
-                    Toast.makeText(applicationContext,"Upload failed", Toast.LENGTH_SHORT).show()
+                override fun onStateChanged(id: Int, state: TransferState) {
+                    if (TransferState.COMPLETED == state) {
+                        completed = true
+                    }
                 }
-            }
-            override fun onProgressChanged(id: Int, bytesCurrent: Long, bytesTotal: Long) {
-                val percentDonef = bytesCurrent.toFloat() / bytesTotal.toFloat() * 100
-                val percentDone = percentDonef.toInt()
-                Log.d("percent done", percentDone.toString())
-            }
 
-            override fun onError(id: Int, ex: Exception) {
-                ex.printStackTrace()
-            }
-        })
-            return completed
+                override fun onProgressChanged(id: Int, bytesCurrent: Long, bytesTotal: Long) {
+                    val percentDonef = bytesCurrent.toFloat() / bytesTotal.toFloat() * 100
+                    percentDone = percentDonef.toInt()
+                    Log.d(Main2Activity.TAG,percentDone.toString())
+                }
+
+                override fun onError(id: Int, ex: Exception) {
+                    ex.printStackTrace()
+                }
+            })
+        while(TransferState.COMPLETED != uploadObserver.getState()){
+            Log.d(Main2Activity.TAG,"uploading....." + percentDone)
         }
+        return completed
+        }
+    */
 
+    private fun uploadToFTP(): Boolean{
+        try{
+            val ftpClient = FTPClient()
+            ftpClient.connect("elec0.com",21)
+            ftpClient.login("sideoftheroad@elec0.com","cmps121")
+            ftpClient.type = FTPClient.TYPE_BINARY
+            Log.d(Main2Activity.TAG,filePathStr)
+            ftpClient.upload(File(filePathStr))
+            ftpClient.disconnect(true)
+            return true
+        }catch(e: Exception){
+            e.printStackTrace()
+            return false
+        }
+    }
     private fun createItem(item: tblItem){
-        dynamoDBMapper?.save(item)
+        thread(start = true) {
+            dynamoDBMapper?.save(item)
+            Log.i(Main2Activity.TAG, "item created" + item.toString())
+        }
     }
 
-    inner class createItemTask internal constructor(private val username: String, private val titleStr: String, private val priceStr: String, private val descriptionStr: String,private val completed: Boolean) : AsyncTask<Void, Void, Boolean>() {
+    inner class createItemTask internal constructor(private val item: tblItem) : AsyncTask<Void, Void, Boolean>() {
 
         override fun doInBackground(vararg params: Void): Boolean? {
+            val completed: Boolean = uploadToFTP()
+            Log.d(Main2Activity.TAG,completed.toString())
             if (completed) {
-                //val pics: MutableSet<String> = mutableSetOf(filePathStr)
-                var newItem: tblItem = tblItem()
-                newItem.title = titleStr
-                newItem.description = descriptionStr
-                newItem.itemId = username + "." + titleStr
-                newItem.price = priceStr
-                //newItem.pics = pics
-                createItem(newItem)
-
+                createItem(item)
                 return true
             }
 
@@ -194,17 +220,20 @@ import java.io.FileOutputStream
 
         override fun onPostExecute(success: Boolean?) {
             if (success!!) {
-                Log.d("STUFF", "successful")
+                Log.d(Main2Activity.TAG, "successful")
                 val intent = Intent(this@AddListingActivity, Main2Activity::class.java)
+                intent.putExtra("username",username)
                 startActivity(intent)
                 finish()
-            }
-            Log.d("STUFF", "notsucesescesful")
+            }else
+                Log.d(Main2Activity.TAG, "not successful")
         }
 
         override fun onCancelled() {
 
         }
+
+
     }
 
     // Define the location listener

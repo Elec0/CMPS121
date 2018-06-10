@@ -95,4 +95,8 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
 
         mMap.moveCamera(CameraUpdateFactory.newLatLngBounds(bounds, width, height, 0))
     }
+
+    override fun onBackPressed(){
+
+    }
 }

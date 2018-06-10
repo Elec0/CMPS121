@@ -140,9 +140,8 @@ class LoginActivity : AppCompatActivity() {
                 return passwordStr == user.password
             }
 
-            finish()
-
             return false
+            finish()
         }
 
         override fun onPostExecute(success: Boolean?) {
