@@ -69,7 +69,7 @@ class DetailActivity : AppCompatActivity() {
                     .setMessage("Have you picked up the item?")
                     .setPositiveButton("Yes", DialogInterface.OnClickListener { dialog, which ->
                         val intent = Intent(this@DetailActivity, Main2Activity::class.java)
-                        DeleteItemTask(itemId)
+                        DeleteItemTask(itemId).execute()
                         startActivity(intent)
                     })
                     .setNegativeButton("No", null)
