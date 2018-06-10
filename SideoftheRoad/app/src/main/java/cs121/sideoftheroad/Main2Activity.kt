@@ -205,6 +205,7 @@ class Main2Activity : AppCompatActivity(), NavigationView.OnNavigationItemSelect
         val content = LinearLayout(this)
         content.layoutParams = innerParams
         content.orientation = LinearLayout.VERTICAL
+        content.gravity = Gravity.CENTER
 
         // Initialize a new ImageView and stick it in the CardView
         val iv = ImageView(this)
