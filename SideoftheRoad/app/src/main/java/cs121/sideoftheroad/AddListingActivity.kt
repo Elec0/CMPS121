@@ -90,7 +90,7 @@ class AddListingActivity : AppCompatActivity() {
             item.title = txtTitle.text.toString()
             item.price = txtPrice.text.toString()
             item.description = txtDesc.text.toString()
-            item.location = curLoc.toString()
+            item.location = curLoc!!.latitude.toString() + ", " + curLoc!!.longitude.toString()
             item.userId = username
             item.itemId = itemId
             item.pics = oImagePathStr + itemId + ".png"
