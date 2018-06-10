@@ -16,6 +16,7 @@ import kotlinx.android.synthetic.main.activity_main2.*
 import kotlinx.android.synthetic.main.app_bar_main2.*
 import android.Manifest
 import android.app.ActionBar
+import android.content.ClipData
 import android.graphics.Color
 import android.support.v4.app.ActivityCompat
 import android.support.v7.widget.CardView
@@ -23,16 +24,32 @@ import cs121.sideoftheroad.R.id.*
 import android.util.TypedValue
 import android.widget.TextView
 import android.graphics.Color.parseColor
+import android.os.AsyncTask
 import kotlinx.android.synthetic.main.content_main2.*
 import android.view.ViewGroup
 import android.widget.LinearLayout
 import android.util.DisplayMetrics
 import android.view.Gravity
+import com.amazonaws.mobile.client.AWSMobileClient
+import com.amazonaws.mobileconnectors.dynamodbv2.dynamodbmapper.DynamoDBMapper
+import com.amazonaws.mobileconnectors.dynamodbv2.dynamodbmapper.DynamoDBQueryExpression
+import com.amazonaws.mobileconnectors.dynamodbv2.dynamodbmapper.DynamoDBScanExpression
+import com.amazonaws.services.dynamodbv2.AmazonDynamoDBClient
+import com.amazonaws.services.dynamodbv2.model.AttributeValue
+import com.amazonaws.services.dynamodbv2.model.ComparisonOperator
+import com.amazonaws.services.dynamodbv2.model.Condition
+import com.amazonaws.services.dynamodbv2.model.ScanRequest
+import cs121.sideoftheroad.dbmapper.tables.tblItem
+import kotlin.concurrent.thread
 
 
 class Main2Activity : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListener {
 
     private var username = ""
+    private val ITEM_TABLE_NAME = "sideoftheroad-mobilehub-1016005302-item"
+
+    private var dynamoDBMapper: DynamoDBMapper? = null
+    private var client: AmazonDynamoDBClient? = null
 
     companion object {
         val TAG = "SOTR"
@@ -54,16 +71,40 @@ class Main2Activity : AppCompatActivity(), NavigationView.OnNavigationItemSelect
 
         nav_view.setNavigationItemSelectedListener(this)
 
+        // Connect to the database
+        dbConnect()
+        // Get all the stuff from said database
+        // There's probably an easier way to get a callback from an asynctask than this but idk how
+        val c: (List<tblItem>) -> Unit = { resultList -> dbCallback(resultList) }
+
+        var scanTask = DatabaseFetchTask(c)
+        scanTask!!.execute(null as Void?)
+    }
+
+    /**
+     * We get all of the data back from the database here.
+     * Populate the CardViews now
+     */
+    fun dbCallback(itemList: List<tblItem>) {
         // When creating these programatically we must put each group of 2 into a linearlayout so they
         // actually are next to each other
-        // TODO: Fetch all entries in the database and display in CardViews
         val row1 = LinearLayout(this)
-        row1.layoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT)
+        val layoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT)
+        row1.layoutParams = layoutParams
 
-        row1.addView(createCardView(0))
-        row1.addView(createCardView(1))
-        layoutMain.addView(row1)
+
+        var curRow = LinearLayout(this)
+        for(i in itemList.indices) {
+            curRow.addView(createCardView(i, itemList[i]))
+
+            if(i % 2 == 1) { // If we've added the second in the row, make a new row
+                layoutMain.addView(curRow)
+                curRow = LinearLayout(this)
+                row1.layoutParams = layoutParams
+            }
+        }
     }
+
 
     /**
      * A general method to programatically create a new cardview to be placed inside the linearlayout
@@ -71,7 +112,7 @@ class Main2Activity : AppCompatActivity(), NavigationView.OnNavigationItemSelect
      * 0 = left
      * 1 = right
      */
-    fun createCardView(loc: Int): CardView {
+    fun createCardView(loc: Int, item: tblItem): CardView {
         // Initialize a new CardView
         val card = CardView(this)
 
@@ -120,13 +161,26 @@ class Main2Activity : AppCompatActivity(), NavigationView.OnNavigationItemSelect
         // Initialize a new TextView to put in CardView
         val tv = TextView(this)
         tv.layoutParams = innerParams
-        tv.text = "CardView\nProgrammatically"
+        tv.text = item.title + "\n" + item.description
         tv.setTextSize(TypedValue.COMPLEX_UNIT_DIP, 12f)
 
         // Put the TextView in CardView
         card.addView(tv)
 
         return card
+    }
+
+    /**
+     * Connect to the database and save the client and mapper objects?
+     */
+    fun dbConnect() {
+        AWSMobileClient.getInstance().initialize(this) { Log.d("YourMainActivity", "AWSMobileClient is instantiated and you are connected to AWS!") }.execute()
+
+        client = AmazonDynamoDBClient(AWSMobileClient.getInstance().credentialsProvider)
+        dynamoDBMapper = DynamoDBMapper.builder()
+                .dynamoDBClient(client)
+                .awsConfiguration(AWSMobileClient.getInstance().configuration)
+                .build()
     }
 
     override fun onBackPressed() {
@@ -220,5 +274,38 @@ class Main2Activity : AppCompatActivity(), NavigationView.OnNavigationItemSelect
                 }
             }
         }
+    }
+
+
+    inner class DatabaseFetchTask internal constructor(val callback: (List<tblItem>) -> Unit) : AsyncTask<Void, Void, Boolean>() {
+        var resultList = mutableListOf<tblItem>()
+
+        override fun doInBackground(vararg p0: Void?): Boolean {
+
+
+            var attributeValues = mutableMapOf<String, AttributeValue>()
+            attributeValues.put(":minId", AttributeValue().withN("0"))
+
+            var scanRequest = DynamoDBScanExpression()
+                .withFilterExpression("size(itemId) > :minId")
+                .withExpressionAttributeValues(attributeValues)
+
+            var scanResult = dynamoDBMapper!!.scan(tblItem::class.java, scanRequest)
+
+            Log.i(TAG, "Results: " + scanResult.count())
+            for(result in scanResult) {
+                resultList.add(result)
+            }
+
+            return true
+        }
+
+
+        override fun onPostExecute(success: Boolean?) {
+            if(success!!) {
+                callback(resultList)
+            }
+        }
+
     }
 }
