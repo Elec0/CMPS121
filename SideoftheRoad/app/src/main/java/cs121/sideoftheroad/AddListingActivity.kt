@@ -136,7 +136,7 @@ class AddListingActivity : AppCompatActivity() {
                 filePathStr = file.path
                 val fOut = FileOutputStream(file)
 
-                imageBitmap.compress(Bitmap.CompressFormat.JPEG, 85, fOut)
+                imageBitmap.compress(Bitmap.CompressFormat.JPEG, 50, fOut)
                 fOut.flush()
                 fOut.close()
             }
