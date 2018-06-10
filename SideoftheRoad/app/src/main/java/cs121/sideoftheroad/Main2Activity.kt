@@ -266,10 +266,6 @@ class Main2Activity : AppCompatActivity(), NavigationView.OnNavigationItemSelect
                 // Handle the camera action, then pass that picture to the AddListingActivity
                 runCameraAdd()
             }
-            // Settings
-            R.id.nav_settings -> {
-
-            }
             // Map
             R.id.nav_map -> {
                 val intent = Intent(this, MapsActivity::class.java)
