@@ -136,6 +136,15 @@ class Main2Activity : AppCompatActivity(), NavigationView.OnNavigationItemSelect
                 width/2,
                 width/2
         )
+        val innerParams = LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.WRAP_CONTENT,
+                LinearLayout.LayoutParams.WRAP_CONTENT
+        )
+        val imageParams =  LinearLayout.LayoutParams(
+                width/4,
+                width/4
+        )
+        imageParams.gravity = Gravity.CENTER
 
         // Get the value of the margins from the dimen.xml
         val margins: IntArray = intArrayOf(resources.getDimension(R.dimen.card_margin_start).toInt(), resources.getDimension(R.dimen.card_margin_top).toInt(),
@@ -147,10 +156,6 @@ class Main2Activity : AppCompatActivity(), NavigationView.OnNavigationItemSelect
         // Set the margins, but only have the end margin if the card is on the right side of the screen
         cardParams.setMargins(margins[0], margins[1], if(loc%2==1) margins[2] else 0, margins[3])
 
-        val innerParams = LinearLayout.LayoutParams(
-                LinearLayout.LayoutParams.WRAP_CONTENT,
-                LinearLayout.LayoutParams.WRAP_CONTENT
-        )
 
         // Set the rest of the card params
         cardParams.gravity = if(loc == 0) Gravity.START else Gravity.END
@@ -159,15 +164,21 @@ class Main2Activity : AppCompatActivity(), NavigationView.OnNavigationItemSelect
         // Set CardView corner radius
         card.radius = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 4f, resources.getDisplayMetrics())
 
+        // Done setting the card specific stuff
+
+        // This is the linear layout where we will be putting our items
+        val content = LinearLayout(this)
+        content.layoutParams = innerParams
+        content.orientation = LinearLayout.VERTICAL
+
         // Initialize a new ImageView and stick it in the CardView
         val iv = ImageView(this)
-        iv.layoutParams = innerParams
+        iv.layoutParams = imageParams
         // Set the default image for an item
         iv.setImageResource(R.drawable.ic_launcher_round)
-
         if(item.pics != null && !item.pics.equals("null"))
             DownloadImageTask(iv).execute(item.pics)
-        card.addView(iv)
+        content.addView(iv)
 
         // Initialize a new TextView to put in CardView
         val tv = TextView(this)
@@ -175,8 +186,8 @@ class Main2Activity : AppCompatActivity(), NavigationView.OnNavigationItemSelect
         tv.text = item.title + "\n" + item.description
         tv.setTextSize(TypedValue.COMPLEX_UNIT_DIP, 12f)
 
-        // Put the TextView in CardView
-        card.addView(tv)
+        content.addView(tv)
+
 
         // Do whatever we're going to do when the user clicks on an item
         card.setOnClickListener(View.OnClickListener {
@@ -186,6 +197,7 @@ class Main2Activity : AppCompatActivity(), NavigationView.OnNavigationItemSelect
             startActivity(intent)
         })
 
+        card.addView(content)
         return card
     }
 

@@ -52,11 +52,9 @@ class LoginActivity : AppCompatActivity() {
 
         prefs = this.getSharedPreferences(Main2Activity.PREFS_FILE, 0)
 
-        // Clear the username preference if it exists, since we're logging in
+        // If the username exists, put that value into the text box
         if(prefs!!.contains(Main2Activity.PREF_USERNAME)) {
-            val editor = prefs!!.edit()
-            editor.remove(Main2Activity.PREF_USERNAME)
-            editor.apply()
+            loginId.setText(prefs!!.getString(Main2Activity.PREF_USERNAME, ""))
         }
 
     }
