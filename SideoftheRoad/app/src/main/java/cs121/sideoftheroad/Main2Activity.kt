@@ -254,7 +254,14 @@ class Main2Activity : AppCompatActivity(), NavigationView.OnNavigationItemSelect
         return true
     }
 
-       override fun onNavigationItemSelected(item: MenuItem): Boolean {
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        // Handle action bar item clicks here. The action bar will
+        // automatically handle clicks on the Home/Up button, so long
+        // as you specify a parent activity in AndroidManifest.xml.
+        return false
+    }
+
+    override fun onNavigationItemSelected(item: MenuItem): Boolean {
         // Handle navigation view item clicks here.
         when (item.itemId) {
             // Add listing

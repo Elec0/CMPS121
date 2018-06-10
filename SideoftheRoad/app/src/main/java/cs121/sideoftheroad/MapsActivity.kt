@@ -16,6 +16,7 @@ import android.support.v4.content.ContextCompat
 import com.google.android.gms.maps.UiSettings
 import android.R.attr.y
 import android.R.attr.x
+import android.content.Intent
 import android.content.SharedPreferences
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
@@ -49,6 +50,8 @@ class MapsActivity : AppCompatActivity(),
     private var dynamoDBMapper: DynamoDBMapper? = null
     private var client: AmazonDynamoDBClient? = null
     private var prefs: SharedPreferences? = null
+
+    private var markerMap : MutableMap<String, tblItem> = mutableMapOf<String, tblItem>()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -98,8 +101,8 @@ class MapsActivity : AppCompatActivity(),
             var loc2 = loc.split(",")
             var latLng = LatLng(loc2[0].toDouble(), loc2[1].toDouble())
 
-            mMap.addMarker(MarkerOptions().position(latLng).title(itemList[i].title))
-
+            val newMarker = mMap.addMarker(MarkerOptions().position(latLng).title(itemList[i].title))
+            markerMap.put(newMarker.id, itemList[i])
 
         }
     }
@@ -151,6 +154,7 @@ class MapsActivity : AppCompatActivity(),
         uiSettings.isZoomControlsEnabled = true
 
         mMap.setOnMarkerClickListener(this@MapsActivity)
+        mMap.setOnInfoWindowClickListener(this@MapsActivity)
 
         // We should probably handle people clicking never ask again for this.
         val permCoarse = ContextCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_COARSE_LOCATION)
@@ -180,7 +184,17 @@ class MapsActivity : AppCompatActivity(),
     }
 
     override fun onInfoWindowClick(marker : Marker) {
-        Toast.makeText(this, "Click Info Window", Toast.LENGTH_SHORT).show()
+        Toast.makeText(this, "Opening Item Details", Toast.LENGTH_SHORT).show()
+
+        var item = markerMap.get(marker.id)
+
+        if(item != null) {
+            val intent = Intent(this, DetailActivity::class.java)
+            intent.putExtra("itemId", item.itemId)
+            startActivity(intent)
+        }
+        else
+            Toast.makeText(this, "Something has gone wrong. Try restarting.", Toast.LENGTH_SHORT).show()
     }
 
     override fun onBackPressed(){
