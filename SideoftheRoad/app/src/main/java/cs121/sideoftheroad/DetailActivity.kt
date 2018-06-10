@@ -49,7 +49,7 @@ class DetailActivity : AppCompatActivity() {
         itemId = intent.getStringExtra("itemId")
         Log.d(Main2Activity.TAG,username + " " + itemId)
         dbConnect()
-        GrabUserItemTask(username,itemId).execute()
+        GrabUserItemTask(itemId).execute()
         Thread.sleep(2_000)
         Log.d(Main2Activity.TAG,item.toString())
 
@@ -119,13 +119,12 @@ class DetailActivity : AppCompatActivity() {
     }
 
 
-    inner class GrabUserItemTask(username: String, itemId: String) : AsyncTask<String, Void, Boolean>() {
+    inner class GrabUserItemTask(itemId: String) : AsyncTask<String, Void, Boolean>() {
         var itemId = itemId
-        var username = username
 
         override fun doInBackground(vararg params: String?): Boolean? {
             item = getItem(itemId)
-            user = getUser(username)
+            user = getUser(item?.userId!!)
             if(user != null && item != null)
                 return true
             return false
