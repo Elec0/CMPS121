@@ -88,6 +88,8 @@ class AddListingActivity : AppCompatActivity() {
 
             val item = tblItem()
             item.title = txtTitle.text.toString()
+            if(txtPrice.text.toString() == "")
+                txtPrice.setText("Free")
             item.price = txtPrice.text.toString()
             item.description = txtDesc.text.toString()
             item.location = curLoc!!.latitude.toString() + ", " + curLoc!!.longitude.toString()
