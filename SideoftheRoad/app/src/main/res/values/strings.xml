@@ -15,4 +15,5 @@
     <string name="error_incorrect_password">The password is incorrect</string>
     <string name="error_username_exist">This username is taken</string>
     <string name="error_email_exist">This email is taken</string>
+    <string name="title_activity_detail">DetailActivity</string>
 </resources>
