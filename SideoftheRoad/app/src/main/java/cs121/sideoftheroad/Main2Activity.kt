@@ -134,7 +134,8 @@ class Main2Activity : AppCompatActivity(), NavigationView.OnNavigationItemSelect
         for(i in margins.indices) {
             margins[i] = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, margins[i].toFloat(), resources.getDisplayMetrics()).toInt()
         }
-        cardParams.setMargins(margins[0], margins[1], margins[2], margins[3])
+        // Set the margins, but only have the end margin if the card is on the right side of the screen
+        cardParams.setMargins(margins[0], margins[1], if(loc%2==1) margins[2] else 0, margins[3])
 
         val innerParams = LinearLayout.LayoutParams(
                 LinearLayout.LayoutParams.WRAP_CONTENT,
@@ -144,14 +145,9 @@ class Main2Activity : AppCompatActivity(), NavigationView.OnNavigationItemSelect
         // Set the rest of the card params
         cardParams.gravity = if(loc == 0) Gravity.START else Gravity.END
         cardParams.weight = 1f
-
         card.layoutParams = cardParams
-
         // Set CardView corner radius
         card.radius = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 4f, resources.getDisplayMetrics())
-
-        // Set cardView content padding
-        //card.setContentPadding(5, 5, 5, 5)
 
         // Set the CardView maximum elevation
         //card.maxCardElevation = 15f
