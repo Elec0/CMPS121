@@ -1,5 +1,6 @@
 package cs121.sideoftheroad
 
+import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.ContentValues
 import android.content.Intent
@@ -63,21 +64,17 @@ class AddListingActivity : AppCompatActivity() {
         prefs = this.getSharedPreferences(Main2Activity.PREFS_FILE, 0)
         username = prefs!!.getString(Main2Activity.PREF_USERNAME, "")
 
-        /*
-        // onclicklistener for submit button
-        btnAdd.setOnClickListener {
-            System.out.println("hasnt blown up yet 60")
-            val completed = uploadToS3()
-            System.out.println("62 not blown up yet")
-            createItemTask(username, txtTitle.toString(), txtPrice.toString(), txtDesc.toString(),completed)
-        }
-        */
 
         // Create persistent LocationManager reference
-        locationManager = getSystemService(LOCATION_SERVICE) as LocationManager?;
+        locationManager = getSystemService(LOCATION_SERVICE) as LocationManager?
         try {
             // Request location updates
-            locationManager?.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 0L, 0f, locationListener);
+            locationManager?.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0L, 0f, locationListener)
+
+            var loc = locationManager?.getLastKnownLocation(LocationManager.GPS_PROVIDER)
+            if(loc != null)
+                curLoc = LatLng(loc.latitude, loc.longitude)
+            
         } catch(ex: SecurityException) {
             Log.d(Main2Activity.TAG, "Security Exception, no location available");
         }
@@ -88,6 +85,8 @@ class AddListingActivity : AppCompatActivity() {
 
         btnAdd.setOnClickListener { view ->
             Log.i(Main2Activity.TAG, "Add the listing.")
+
+
 
             val item = tblItem()
             item.title = txtTitle.text.toString()
@@ -243,6 +242,8 @@ class AddListingActivity : AppCompatActivity() {
     // From https://stackoverflow.com/questions/45958226/get-location-android-kotlin
     private val locationListener: LocationListener = object : LocationListener {
         override fun onLocationChanged(location: Location) {
+            Log.i(Main2Activity.TAG, "New Location: " + location.latitude + ", " + location.longitude)
+
             curLoc = LatLng(location.latitude, location.longitude)
         }
         override fun onStatusChanged(provider: String, status: Int, extras: Bundle) {}
