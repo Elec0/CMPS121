@@ -10,13 +10,13 @@ import android.support.v4.view.GravityCompat
 import android.support.v7.app.ActionBarDrawerToggle
 import android.support.v7.app.AppCompatActivity
 import android.util.Log
-import android.view.Menu
-import android.view.MenuItem
 import kotlinx.android.synthetic.main.activity_main2.*
 import kotlinx.android.synthetic.main.app_bar_main2.*
 import android.Manifest
 import android.app.ActionBar
 import android.content.ClipData
+import android.graphics.Bitmap
+import android.graphics.BitmapFactory
 import android.graphics.Color
 import android.support.v4.app.ActivityCompat
 import android.support.v7.widget.CardView
@@ -24,22 +24,26 @@ import cs121.sideoftheroad.R.id.*
 import android.util.TypedValue
 import android.widget.TextView
 import android.graphics.Color.parseColor
+import android.media.Image
 import android.os.AsyncTask
 import kotlinx.android.synthetic.main.content_main2.*
-import android.view.ViewGroup
 import android.widget.LinearLayout
 import android.util.DisplayMetrics
-import android.view.Gravity
+import android.view.*
+import android.widget.ImageView
 import com.amazonaws.mobile.client.AWSMobileClient
 import com.amazonaws.mobileconnectors.dynamodbv2.dynamodbmapper.DynamoDBMapper
 import com.amazonaws.mobileconnectors.dynamodbv2.dynamodbmapper.DynamoDBQueryExpression
 import com.amazonaws.mobileconnectors.dynamodbv2.dynamodbmapper.DynamoDBScanExpression
+import com.amazonaws.mobileconnectors.s3.transfermanager.Download
 import com.amazonaws.services.dynamodbv2.AmazonDynamoDBClient
 import com.amazonaws.services.dynamodbv2.model.AttributeValue
 import com.amazonaws.services.dynamodbv2.model.ComparisonOperator
 import com.amazonaws.services.dynamodbv2.model.Condition
 import com.amazonaws.services.dynamodbv2.model.ScanRequest
 import cs121.sideoftheroad.dbmapper.tables.tblItem
+import java.io.InputStream
+import java.net.URL
 import kotlin.concurrent.thread
 
 
@@ -149,10 +153,14 @@ class Main2Activity : AppCompatActivity(), NavigationView.OnNavigationItemSelect
         // Set CardView corner radius
         card.radius = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 4f, resources.getDisplayMetrics())
 
-        // Set the CardView maximum elevation
-        //card.maxCardElevation = 15f
-        // Set CardView elevation
-        //card.cardElevation = 9f
+        // Initialize a new ImageView and stick it in the CardView
+        val iv = ImageView(this)
+        iv.layoutParams = innerParams
+        iv.setImageResource(R.drawable.waste_basket)
+
+        if(item.pics != null && !item.pics.equals("null"))
+            DownloadImageTask(iv).execute(item.pics)
+        card.addView(iv)
 
         // Initialize a new TextView to put in CardView
         val tv = TextView(this)
@@ -162,6 +170,11 @@ class Main2Activity : AppCompatActivity(), NavigationView.OnNavigationItemSelect
 
         // Put the TextView in CardView
         card.addView(tv)
+
+        // Do whatever we're going to do when the user clicks on an item
+        card.setOnClickListener(View.OnClickListener {
+            Log.i(TAG, "The card was clicked on! " + item.itemId)
+        })
 
         return card
     }
@@ -303,5 +316,38 @@ class Main2Activity : AppCompatActivity(), NavigationView.OnNavigationItemSelect
             }
         }
 
+    }
+
+    inner class DownloadImageTask(img: ImageView) : AsyncTask<String, Void, Bitmap>() {
+        var locImg:ImageView = img
+
+        override fun doInBackground(vararg param: String?): Bitmap? {
+            var urldisplay = param[0];
+            var mIcon11: Bitmap? = null;
+
+            if(!urldisplay!!.startsWith("http://"))
+                urldisplay = "http://" + urldisplay
+            Log.i(TAG, "Download " + urldisplay)
+
+            try {
+                var inS: InputStream = URL(urldisplay).openStream()
+                mIcon11 = BitmapFactory.decodeStream(inS)
+                return mIcon11
+
+            } catch (e: Exception) {
+                e.printStackTrace()
+                return null
+            }
+        }
+
+        override fun onPostExecute(success: Bitmap?) {
+            if(success != null) {
+                Log.i(TAG, "Finished downloading, set bitmap to image.")
+                locImg.setImageBitmap(success)
+            }
+            else {
+                Log.i(TAG, "Image was not downlaoded successfully")
+            }
+        }
     }
 }
