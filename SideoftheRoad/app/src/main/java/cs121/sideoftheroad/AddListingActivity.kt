@@ -74,7 +74,7 @@ class AddListingActivity : AppCompatActivity() {
             var loc = locationManager?.getLastKnownLocation(LocationManager.GPS_PROVIDER)
             if(loc != null)
                 curLoc = LatLng(loc.latitude, loc.longitude)
-            
+
         } catch(ex: SecurityException) {
             Log.d(Main2Activity.TAG, "Security Exception, no location available");
         }
@@ -86,15 +86,13 @@ class AddListingActivity : AppCompatActivity() {
         btnAdd.setOnClickListener { view ->
             Log.i(Main2Activity.TAG, "Add the listing.")
 
-
-
             val item = tblItem()
             item.title = txtTitle.text.toString()
             if(txtPrice.text.toString() == "")
                 txtPrice.setText("Free")
             item.price = txtPrice.text.toString()
             item.description = txtDesc.text.toString()
-            item.location = curLoc.toString()
+            item.location = curLoc!!.latitude.toString() + ", " + curLoc!!.longitude.toString()
             item.userId = username
             item.itemId = itemId
             item.pics = oImagePathStr + itemId + ".png"
@@ -140,7 +138,7 @@ class AddListingActivity : AppCompatActivity() {
                 filePathStr = file.path
                 val fOut = FileOutputStream(file)
 
-                imageBitmap.compress(Bitmap.CompressFormat.JPEG, 85, fOut)
+                imageBitmap.compress(Bitmap.CompressFormat.JPEG, 50, fOut)
                 fOut.flush()
                 fOut.close()
             }
@@ -226,7 +224,6 @@ class AddListingActivity : AppCompatActivity() {
             if (success!!) {
                 Log.d(Main2Activity.TAG, "successful")
                 val intent = Intent(this@AddListingActivity, Main2Activity::class.java)
-                intent.putExtra("username",username)
                 startActivity(intent)
                 finish()
             }else
@@ -244,8 +241,6 @@ class AddListingActivity : AppCompatActivity() {
     // From https://stackoverflow.com/questions/45958226/get-location-android-kotlin
     private val locationListener: LocationListener = object : LocationListener {
         override fun onLocationChanged(location: Location) {
-            Log.i(Main2Activity.TAG, "New Location: " + location.latitude + ", " + location.longitude)
-
             curLoc = LatLng(location.latitude, location.longitude)
         }
         override fun onStatusChanged(provider: String, status: Int, extras: Bundle) {}
