@@ -255,10 +255,7 @@ class Main2Activity : AppCompatActivity(), NavigationView.OnNavigationItemSelect
         // Handle action bar item clicks here. The action bar will
         // automatically handle clicks on the Home/Up button, so long
         // as you specify a parent activity in AndroidManifest.xml.
-        when (item.itemId) {
-            R.id.action_settings -> return true
-            else -> return super.onOptionsItemSelected(item)
-        }
+        return false
     }
 
     override fun onNavigationItemSelected(item: MenuItem): Boolean {
