@@ -60,7 +60,7 @@ class Main2Activity : AppCompatActivity(), NavigationView.OnNavigationItemSelect
     companion object {
         val TAG = "SOTR"
         val PREFS_FILE = "cs121.sideoftheroad.prefs"
-        val PREF_USERNAME = "Username"
+        var PREF_USERNAME = "Username"
     }
 
     private val CAMERA_REQUEST_CODE = 102
@@ -74,7 +74,7 @@ class Main2Activity : AppCompatActivity(), NavigationView.OnNavigationItemSelect
 
         setSupportActionBar(toolbar)
 
-            val toggle = ActionBarDrawerToggle(this, drawer_layout, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close)
+        val toggle = ActionBarDrawerToggle(this, drawer_layout, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close)
 
         drawer_layout.addDrawerListener(toggle)
         toggle.syncState()
