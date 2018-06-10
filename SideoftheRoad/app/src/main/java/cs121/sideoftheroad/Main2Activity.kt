@@ -132,8 +132,23 @@ class Main2Activity : AppCompatActivity(), NavigationView.OnNavigationItemSelect
                 row1.layoutParams = layoutParams
             }
         }
+        // If there is an odd number of items add the last row manually
+        if(itemList.count() % 2 == 1)
+            layoutMain.addView(curRow)
     }
 
+    /**
+     * Connect to the database and save the client and mapper objects?
+     */
+    fun dbConnect() {
+        AWSMobileClient.getInstance().initialize(this) { Log.d("YourMainActivity", "AWSMobileClient is instantiated and you are connected to AWS!") }.execute()
+
+        client = AmazonDynamoDBClient(AWSMobileClient.getInstance().credentialsProvider)
+        dynamoDBMapper = DynamoDBMapper.builder()
+                .dynamoDBClient(client)
+                .awsConfiguration(AWSMobileClient.getInstance().configuration)
+                .build()
+    }
 
     /**
      * A general method to programatically create a new cardview to be placed inside the linearlayout
@@ -219,19 +234,6 @@ class Main2Activity : AppCompatActivity(), NavigationView.OnNavigationItemSelect
 
         card.addView(content)
         return card
-    }
-
-    /**
-     * Connect to the database and save the client and mapper objects?
-     */
-    fun dbConnect() {
-        AWSMobileClient.getInstance().initialize(this) { Log.d("YourMainActivity", "AWSMobileClient is instantiated and you are connected to AWS!") }.execute()
-
-        client = AmazonDynamoDBClient(AWSMobileClient.getInstance().credentialsProvider)
-        dynamoDBMapper = DynamoDBMapper.builder()
-                .dynamoDBClient(client)
-                .awsConfiguration(AWSMobileClient.getInstance().configuration)
-                .build()
     }
 
     override fun onBackPressed() {
@@ -381,8 +383,6 @@ class Main2Activity : AppCompatActivity(), NavigationView.OnNavigationItemSelect
             var urldisplay = param[0];
             var bitmap = getBitmapFromMemCache(urldisplay!!)
 
-            Log.i(TAG, bitmap.toString())
-
             // If the cache had the image, just return it immediately
             if(bitmap != null) {
                 return bitmap
@@ -394,8 +394,6 @@ class Main2Activity : AppCompatActivity(), NavigationView.OnNavigationItemSelect
             try {
                 var inS: InputStream = URL(urldisplay).openStream()
                 bitmap = BitmapFactory.decodeStream(inS)
-                Log.i(TAG, "Add bitmap to cache")
-                Log.i(TAG, bitmap.toString())
                 addBitmapToMemoryCache(urldisplay, bitmap)
                 return bitmap
 
